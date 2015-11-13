@@ -3,19 +3,19 @@ from code.utilities import store_tweets, handle_rate_limiting
 from twython import TwythonStreamer
 
 # Looks like the TwythonStreamer class handles rate limiting for me!
-tweet=None
+tweet_cache=[]
 N=0
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
+        if 'limit' in data:
+            return
         global N
-        #if 'text' in data:
-        #    N+=1
-        #    print N, data['text'].encode('utf-8')
+        global tweet_cache
+        tweet_cache.append(data)
         succ=False
         if 'media' in data['entities']:
             for m in data['entities']['media']:
                 if not succ:
-                    tweet = data
                     N+=1
                     succ=True
                     print
@@ -23,7 +23,6 @@ class MyStreamer(TwythonStreamer):
         if 'urls' in data['entities']:
             for u in data['entities']['urls']:
                 if not succ:
-                    tweet = data
                     N+=1
                     succ=True
                     print
@@ -34,4 +33,5 @@ class MyStreamer(TwythonStreamer):
 
 if __name__ == "__main__":
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    stream.statuses.filter(track='YesSheCan')
+    #stream.statuses.filter(track='YesSheCan')
+    stream.statuses.filter(track='the')
