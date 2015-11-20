@@ -56,7 +56,8 @@ class TweetCache(object):
         if urlparse(url).path in('','/'):
             return
         if not self._stored and hasattr(self, 'datastore'):
-            self.datastore.insert(data)
+            if self.datastore:
+                self.datastore.insert(data)
         #self._cache[dict_type][url].append(True)
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
@@ -87,7 +88,9 @@ class TweetCache(object):
     def register_datastore(self, datastore):
         """
         Datastore must have an "insert" method and accept arbitrary tweet 
-        objects as inputs. Simplest usage is to pass in a mongodb collection
+        objects as inputs. Simplest usage is to pass in a mongodb collection.
+        
+        Unregister by registering the None object as the datastore.
         """
         self.datastore = datastore
     def __len__(self):
