@@ -12,7 +12,7 @@ update_interval = 60
 # Looks like the TwythonStreamer class handles rate limiting for me!
 tweet = None
 tweet_cache = TweetCache(minutes=60)
-tweet_cache.register_datastore(tweets)
+
 #tweet_cache=[]
 N=0
 M=0
@@ -82,10 +82,12 @@ if __name__ == "__main__":
     from collections import Counter
     exception_catcher = Counter()
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    #stream.statuses.filter(track='Paris')
+    #tweet_cache.register_datastore(tweets)
     while True:
         try:
-            stream.statuses.sample()
+            stream.statuses.filter(track=
+                ['terrorists','attack','attacked','killed','hostage','hostages','explosion','bomb','bomber'])
+            #stream.statuses.sample()
         except Exception, e:
             exception_catcher[e] +=1
             print "[ERROR]", e, exception_catcher[e]

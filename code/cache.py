@@ -1,4 +1,4 @@
-from datedeque_rough import DateDeque
+from datedeque import DateDeque
 from collections import defaultdict, Counter
 from urlparse import urlparse
 
@@ -55,7 +55,7 @@ class TweetCache(object):
         # they link to a file or article.
         if urlparse(url).path in('','/'):
             return
-        if not self._stored:
+        if not self._stored and hasattr(self, 'datastore'):
             self.datastore.insert(data)
         #self._cache[dict_type][url].append(True)
         self._cache[dict_type][url].append(user_id)

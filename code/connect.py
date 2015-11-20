@@ -23,10 +23,13 @@ OAUTH_TOKEN_SECRET = config.get('credentials','oath_token_secret')
 twitter = Twython(APP_KEY, APP_SECRET, oauth_version=2)
 ACCESS_TOKEN = twitter.obtain_access_token()
 twitter = Twython(APP_KEY, access_token=ACCESS_TOKEN)
-
-# spin up database
-DBNAME = config.get('database', 'name')
-COLLECTION = config.get('database', 'collection')
-conn = Connection()
-db = conn[DBNAME]
-tweets = db[COLLECTION]
+try:
+    # spin up database
+    DBNAME = config.get('database', 'name')
+    COLLECTION = config.get('database', 'collection')
+    conn = Connection()
+    db = conn[DBNAME]
+    tweets = db[COLLECTION]
+except:
+    print "MongoDB connection refused. Tweets will not be persisted."
+    tweets = None
