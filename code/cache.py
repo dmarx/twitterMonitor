@@ -62,15 +62,15 @@ class TweetCache(object):
             if self._pubsub:
                 msg = {
                     'urls':{
-                        'top_by_count':self.urls.most_common(10),
-                        'top_by_users':self.url_users.most_common(10),
+                        'top_by_count':[url for url, _ in self.urls.most_common(10)],
+                        'top_by_users':[url for url, _ in self.url_users.most_common(10)],
                         #'total':sum(self.urls.values()),
                         #'unique':len(self.urls),
                         #'n_users':len(self.url_users)
                     },
                     'media':{
-                        'top_by_count':self.media.most_common(10),
-                        'top_by_users':self.media_users.most_common(10),
+                        'top_by_count':[url for url, _ in self.media.most_common(10)],
+                        'top_by_users':[url for url, _ in self.media_users.most_common(10)],
                         #'total':sum(self.media.values()),
                         #'unique':len(self.media),
                         #'n_users':len(self.media_users)
