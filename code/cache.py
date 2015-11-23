@@ -64,19 +64,23 @@ class TweetCache(object):
                     'urls':{
                         'top_by_count':self.urls.most_common(10),
                         'top_by_users':self.url_users.most_common(10),
-                        'total':sum(self.urls.values()),
-                        'unique':len(self.urls),
-                        'n_users':len(self.url_users)
+                        #'total':sum(self.urls.values()),
+                        #'unique':len(self.urls),
+                        #'n_users':len(self.url_users)
                     },
                     'media':{
                         'top_by_count':self.media.most_common(10),
                         'top_by_users':self.media_users.most_common(10),
-                        'total':sum(self.media.values()),
-                        'unique':len(self.media),
-                        'n_users':len(self.media_users)
+                        #'total':sum(self.media.values()),
+                        #'unique':len(self.media),
+                        #'n_users':len(self.media_users)
                     }
                 }
-                self.publish(msg)
+                # Only publish a message if there's been a change to the data
+                # being transmitted.
+                if msg != self._last_msg:
+                    self._last_msg = msg
+                    self.publish(msg)
         #self._cache[dict_type][url].append(True)
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
@@ -131,6 +135,7 @@ class TweetCache(object):
         """
         self._pubsub = pubsub
         self._pubsub_channel = channel
+        self._last_msg = None
         def publish(msg):
             """
             Publish data via the registered pubsub on the {} channel
