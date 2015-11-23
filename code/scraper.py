@@ -83,6 +83,9 @@ if __name__ == "__main__":
     exception_catcher = Counter()
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     #tweet_cache.register_datastore(tweets)
+    import redis
+    r = redis.StrictRedis()
+    tweet_cache.register_pubsub(r, 'tweet_monitor')
     while True:
         try:
             stream.statuses.filter(track=
