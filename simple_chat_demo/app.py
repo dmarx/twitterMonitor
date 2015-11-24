@@ -42,14 +42,19 @@ def home():
                     console.log("received");
                     // XSS in chat is fun
                     data = e.data;
-                    out.innerHTML = data + '\\n' + out.innerHTML;
+                    //out.innerHTML = data + '\\n' + out.innerHTML;
                     obj = JSON.parse(data);
                     focus = obj['urls']['top_by_count'];
                     //console.log(focus[0]['url']);
                     console.log("doing the thing");
                     
+                    out.innerHTML = ''; // truncate existing text
                     for(i=0;i<focus.length;i++){
-                        out.innerHTML =  focus[i]['rank'] +"|"+ focus[i]['score']  +"|"+ focus[i]['url']  + '\\n' + out.innerHTML;
+                        var insert_text = focus[i]['rank'] +"\t|\t"+ 
+                                         focus[i]['score'] +"\t|\t"+ 
+                                         '<a href="' + focus[i]['url'] + '">' + focus[i]['url'] +"</a>"+ '\\n';
+                        console.log(insert_text);
+                        out.innerHTML =  out.innerHTML + insert_text;
                     };
                 };
             }
