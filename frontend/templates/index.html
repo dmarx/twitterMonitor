@@ -18,11 +18,14 @@
     </table>
 </div>
 <script>
-    var obj
+    var obj;
+    var data;
     //function sse() {
         var source = new EventSource('/stream');
+        //var source = new EventSource('{{ url_for('stream') }}');
         //var out = document.getElementById('out');
         source.onmessage = function(e) {
+            data = e;
             console.log("message received!");
             console.log(e.data);
             obj = JSON.parse(e.data);
