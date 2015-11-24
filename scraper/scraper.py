@@ -18,8 +18,6 @@ N=0
 M=0
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
-        #if 'limit' in data:
-        #    return
         if 'text' not in data: # more general. handles all notices 
             return
         global tweet_cache
@@ -54,31 +52,10 @@ class MyStreamer(TwythonStreamer):
                 print "{} | {:.2f} | {}".format(count, 100*count/total_urls, item)
                 
             start = time.time()
-        # global M
-        # succ=False
-        # M+=1
-        # if 'media' in data['entities']:
-            # for m in data['entities']['media']:
-                # if not succ:
-                    # N+=1
-                    # succ=True
-                    # print
-                # #print N, M, "MEDIA", m['expanded_url']
-                # print N, M, len(tweet_cache.media), "MEDIA", m['expanded_url']
-        # if 'urls' in data['entities']:
-            # for u in data['entities']['urls']:
-                # if not succ:
-                    # N+=1
-                    # succ=True
-                    # print
-                # #print N, M, "URL", u['expanded_url']
-                # print N, M, len(tweet_cache.urls), "URL", u['expanded_url']
-                
     def on_error(self, status_code, data):
         print "[ON ERROR]", status_code
 
 if __name__ == "__main__":
-    #error_count = 0
     from collections import Counter
     exception_catcher = Counter()
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
@@ -96,5 +73,4 @@ if __name__ == "__main__":
         except Exception, e:
             exception_catcher[e] +=1
             print "[ERROR]", e, exception_catcher[e]
-            #raise e
     
