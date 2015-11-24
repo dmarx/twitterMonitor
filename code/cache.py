@@ -1,7 +1,11 @@
 from datedeque import DateDeque
 from collections import defaultdict, Counter
 from urlparse import urlparse
-
+try:
+    import ujson as json
+except:
+    import json
+    
 class TweetCache(object):
     def __init__(self, **kargs):
         """
@@ -134,22 +138,29 @@ class TweetCache(object):
         self.publish = publish
     @property
     def _message(self):
-        return {
+        msg = {
             'urls':{
-                'top_by_count':[url for url, _ in self.urls.most_common(10)],
-                'top_by_users':[url for url, _ in self.url_users.most_common(10)],
+                'top_by_count':[{'url':url_cnt[0], 'rank':i} 
+                    for i, url_cnt in enumerate(self.urls.most_common(10))],
+                'top_by_users':[{'url':url_cnt[0], 'rank':i}
+                    for i, url_cnt in enumerate(self.url_users.most_common(10))]
                 #'total':sum(self.urls.values()),
                 #'unique':len(self.urls),
                 #'n_users':len(self.url_users)
             },
             'media':{
-                'top_by_count':[url for url, _ in self.media.most_common(10)],
-                'top_by_users':[url for url, _ in self.media_users.most_common(10)],
+                #'top_by_count':[url for url, _ in self.media.most_common(10)],
+                #'top_by_users':[url for url, _ in self.media_users.most_common(10)],
+                'top_by_count':[{'url':url_cnt[0], 'rank':i} 
+                    for i, url_cnt in enumerate(self.media.most_common(10))],
+                'top_by_users':[{'url':url_cnt[0], 'rank':i}
+                    for i, url_cnt in enumerate(self.media_users.most_common(10))]
                 #'total':sum(self.media.values()),
                 #'unique':len(self.media),
                 #'n_users':len(self.media_users)
             }
         }
+        return json.dumps(msg)
     def __len__(self):
         self._refresh_all()
         return sum(len(v) for v in self._counters.values())
