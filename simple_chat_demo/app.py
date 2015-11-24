@@ -34,10 +34,8 @@ def stream():
 def home():
     return """
         <!doctype html>
-        <title>chat</title>
+        <title>Twitter Monitor</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-        <p><b>hi, %s!</b></p>
-        <p>Message: <input id="in" /></p>
         <pre id="out"></pre>
         <script>
             function sse() {
@@ -48,15 +46,9 @@ def home():
                     out.innerHTML =  e.data + '\\n' + out.innerHTML;
                 };
             }
-            $('#in').keyup(function(e){
-                if (e.keyCode == 13) {
-                    $.post('/post', {'message': $(this).val()});
-                    $(this).val('');
-                }
-            });
             sse();
         </script>
-    """ % flask.session['user']
+    """
 
 if __name__ == '__main__':
     app.debug = True

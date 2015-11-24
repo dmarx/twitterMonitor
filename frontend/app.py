@@ -29,7 +29,7 @@ def event_stream():
                 for item in d:
                     print item
                 #yield jsonify(data=d) # This should already be a JSON object
-                yield message['data']
+                yield "data: " + message['data']
             else:
                 print "waiting for data"
                 continue
