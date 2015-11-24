@@ -18,13 +18,14 @@
     </table>
 </div>
 <script>
+    var obj
     //function sse() {
         var source = new EventSource('/stream');
         //var out = document.getElementById('out');
         source.onmessage = function(e) {
             console.log("message received!");
             console.log(e.data);
-            var obj = JSON.parse(e.data)
+            obj = JSON.parse(e.data);
             d3.select("table#top-urls-records>tbody").remove();
             var tbody = d3.select("table#top-urls-records").append('tbody');
             tr = tbody.selectAll("tr")

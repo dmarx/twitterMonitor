@@ -16,7 +16,7 @@ r = redis.StrictRedis()
 
 def event_stream():
     #with app.app_context():
-    with app.test_request_context():
+    #with app.test_request_context():
         pubsub = r.pubsub()
         pubsub.subscribe('tweet_monitor')
         # TODO: handle client disconnection.
@@ -41,7 +41,7 @@ def index():
 
 @app.route('/stream')
 def stream():
-    return flask.Response(event_stream(), mimetype="text/event-stream")
+    return Response(event_stream(), mimetype="text/event-stream")
 
 if __name__ == '__main__':
     app.debug = True
