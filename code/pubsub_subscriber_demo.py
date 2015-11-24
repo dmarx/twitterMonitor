@@ -11,11 +11,12 @@ pubsub.subscribe('tweet_monitor')
 i=0
 for message in pubsub.listen():
     i +=1
-    #print i
-    print message['data']
-    print type(message['data'])
+    print "\n\n",i
+    #print message['data']
+    #print type(message['data'])
     if message['data'] != 1:
         d = json.loads(message['data'])
-        print type(d)
-        print d
-        break
+        #print type(d)
+        for item in d['urls']['top_by_count']:
+            print item
+        #break

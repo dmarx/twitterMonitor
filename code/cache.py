@@ -138,24 +138,27 @@ class TweetCache(object):
         self.publish = publish
     @property
     def _message(self):
+        total_urls  = sum(self.urls.values())
+        total_media = sum(self.media.values())
+        # We'll represent scores as XX.XX %. To handle floating point issues, 
+        # multiply the decimal representation by 1e4, truncate as an integer, 
+        # and pass the integer in the message.
         msg = {
             'urls':{
-                'top_by_count':[{'url':url_cnt[0], 'rank':i} 
+                'top_by_count':[{'url':url_cnt[0], 'rank':i+1, 'score':int(10000*url_cnt[1]/total_urls)} 
                     for i, url_cnt in enumerate(self.urls.most_common(10))],
-                'top_by_users':[{'url':url_cnt[0], 'rank':i}
+                'top_by_users':[{'url':url_cnt[0], 'rank':i+1, 'score':int(1000*url_cnt[1]/total_urls)}
                     for i, url_cnt in enumerate(self.url_users.most_common(10))]
-                #'total':sum(self.urls.values()),
                 #'unique':len(self.urls),
                 #'n_users':len(self.url_users)
             },
             'media':{
                 #'top_by_count':[url for url, _ in self.media.most_common(10)],
                 #'top_by_users':[url for url, _ in self.media_users.most_common(10)],
-                'top_by_count':[{'url':url_cnt[0], 'rank':i} 
+                'top_by_count':[{'url':url_cnt[0], 'rank':i+1, 'score':int(10000*url_cnt[1]/total_media)} 
                     for i, url_cnt in enumerate(self.media.most_common(10))],
-                'top_by_users':[{'url':url_cnt[0], 'rank':i}
+                'top_by_users':[{'url':url_cnt[0], 'rank':i+1, 'score':int(10000*url_cnt[1]/total_media)} 
                     for i, url_cnt in enumerate(self.media_users.most_common(10))]
-                #'total':sum(self.media.values()),
                 #'unique':len(self.media),
                 #'n_users':len(self.media_users)
             }
