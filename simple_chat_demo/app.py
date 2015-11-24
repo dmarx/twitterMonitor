@@ -9,21 +9,11 @@ red = redis.StrictRedis()
 
 def event_stream():
     pubsub = red.pubsub()
-    #pubsub.subscribe('chat')
     pubsub.subscribe('tweet_monitor')
     # TODO: handle client disconnection.
     for message in pubsub.listen():
         print message
         yield 'data: %s\n\n' % message['data']
-
-@app.route('/post', methods=['POST'])
-def post():
-    message = flask.request.form['message']
-    now = datetime.datetime.now().replace(microsecond=0).time()
-    msg = 'chat', u'[%s] : %s' % (now.isoformat(), message)
-    print msg
-    red.publish(msg)
-    return flask.Response(status=204)
 
 @app.route('/stream')
 def stream():
