@@ -20,9 +20,15 @@ OAUTH_TOKEN_SECRET = config.get('credentials','oath_token_secret')
 #twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 #twitter.verify_credentials()
 
-twitter = Twython(APP_KEY, APP_SECRET, oauth_version=2)
-ACCESS_TOKEN = twitter.obtain_access_token()
+if config.has_option('credentials', 'access_token'):
+    ACCESS_TOKEN = config.get('credentials', 'access_token')
+else:
+    twitter = Twython(APP_KEY, APP_SECRET, oauth_version=2)
+    ACCESS_TOKEN = twitter.obtain_access_token()
+    config.set('credentials', 'access_token', ACCESS_TOKEN)
+
 twitter = Twython(APP_KEY, access_token=ACCESS_TOKEN)
+
 try:
     # spin up database
     DBNAME = config.get('database', 'name')
