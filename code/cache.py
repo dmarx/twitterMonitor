@@ -58,33 +58,12 @@ class TweetCache(object):
         if not self._stored and hasattr(self, 'datastore'):
             if self.datastore:
                 self.datastore.insert(data)
-        if not self._stored and hasattr(self, '_pubsub'):
-            if self._pubsub:
-                msg = {
-                    'urls':{
-                        'top_by_count':[url for url, _ in self.urls.most_common(10)],
-                        'top_by_users':[url for url, _ in self.url_users.most_common(10)],
-                        #'total':sum(self.urls.values()),
-                        #'unique':len(self.urls),
-                        #'n_users':len(self.url_users)
-                    },
-                    'media':{
-                        'top_by_count':[url for url, _ in self.media.most_common(10)],
-                        'top_by_users':[url for url, _ in self.media_users.most_common(10)],
-                        #'total':sum(self.media.values()),
-                        #'unique':len(self.media),
-                        #'n_users':len(self.media_users)
-                    }
-                }
-                # Only publish a message if there's been a change to the data
-                # being transmitted.
-                if msg != self._last_msg:
-                    self._last_msg = msg
-                    self.publish(msg)
+        
         #self._cache[dict_type][url].append(True)
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
         self._refresh_all()
+        self.publish()
     def _refresh_all(self):
         for type, cache in self._cache.iteritems():
             for k, v in cache.iteritems():
@@ -116,6 +95,9 @@ class TweetCache(object):
         Unregister by registering the None object as the datastore.
         """
         self.datastore = datastore
+    def publish(self, msg):
+        pass
+        # If active, we'll define this when we call self.register_pubsub
     def register_pubsub(self, pubsub, channel):
         """
         Register a publish/subscribe system for message passing. In particular,
@@ -136,12 +118,38 @@ class TweetCache(object):
         self._pubsub = pubsub
         self._pubsub_channel = channel
         self._last_msg = None
-        def publish(msg):
+        def publish():
             """
             Publish data via the registered pubsub on the {} channel
             """.format(self._pubsub_channel)
-            self._pubsub.publish(self._pubsub_channel, msg)
+            if hasattr(self, '_pubsub'):
+                if self._pubsub:
+                    msg = self._message
+                    # Only publish a message if there's been a change to the data
+                    # being transmitted.
+                    if msg != self._last_msg:
+                        self._last_msg = msg
+                        #self.publish(msg)
+                        self._pubsub.publish(self._pubsub_channel, msg)
         self.publish = publish
+    @property
+    def _message(self):
+        return {
+            'urls':{
+                'top_by_count':[url for url, _ in self.urls.most_common(10)],
+                'top_by_users':[url for url, _ in self.url_users.most_common(10)],
+                #'total':sum(self.urls.values()),
+                #'unique':len(self.urls),
+                #'n_users':len(self.url_users)
+            },
+            'media':{
+                'top_by_count':[url for url, _ in self.media.most_common(10)],
+                'top_by_users':[url for url, _ in self.media_users.most_common(10)],
+                #'total':sum(self.media.values()),
+                #'unique':len(self.media),
+                #'n_users':len(self.media_users)
+            }
+        }
     def __len__(self):
         self._refresh_all()
         return sum(len(v) for v in self._counters.values())
