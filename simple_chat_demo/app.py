@@ -41,19 +41,16 @@ def home():
                 source.onmessage = function(e) {
                     console.log("received");
                     // XSS in chat is fun
-                    
                     data = e.data;
                     out.innerHTML = data + '\\n' + out.innerHTML;
                     obj = JSON.parse(data);
-                    /*
-                    if (obj != 1) {
-                        console.log("doing the thing");
-                        focus = obj['urls']['top_by_count'];
-                        for(i=0;focus.length;i++){
-                            out.innerHTML =  focus['rank'] +"|"+ focus['score']  +"|"+ focus['url']  + '\\n' + out.innerHTML;
-                        };
+                    focus = obj['urls']['top_by_count'];
+                    //console.log(focus[0]['url']);
+                    console.log("doing the thing");
+                    
+                    for(i=0;i<focus.length;i++){
+                        out.innerHTML =  focus[i]['rank'] +"|"+ focus[i]['score']  +"|"+ focus[i]['url']  + '\\n' + out.innerHTML;
                     };
-                    */
                 };
             }
             sse();
