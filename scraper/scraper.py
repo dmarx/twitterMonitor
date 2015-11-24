@@ -1,6 +1,6 @@
 from __future__ import division
-from code.connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
-from code.utilities import store_tweets, handle_rate_limiting
+from connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
+from utilities import store_tweets, handle_rate_limiting
 from twython import TwythonStreamer
 from requests.exceptions import ChunkedEncodingError
 from cache import TweetCache
