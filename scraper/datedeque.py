@@ -30,6 +30,13 @@ class DateDeque(deque):
     def timestamp():
         st = time.gmtime(time.time())
         return datetime(*st[:7])
+    @property
+    def insertion_times(self):
+        return [d for d,_ in self]
+    #@property
+    def TTL(self):
+        now = self.timestamp()
+        return [(now-d).total_seconds() for d,_ in self]
     def append(self, X):
         super(DateDeque, self).append(self._date_augment(X))
         self.flush()
