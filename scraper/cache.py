@@ -6,6 +6,9 @@ try:
 except:
     import json
     
+#For exponential kde, scale=500 seems to work ok (this is just under 10 minutes, which I believe gives about an 18 minute halflife)
+from kde import GammaKDELinked, ExponentialKDELinked
+    
 class TweetCache(object):
     def __init__(self, **kargs):
         """
@@ -33,6 +36,7 @@ class TweetCache(object):
         #self._unq_users
         #self._unq_users['urls']  = defaultdict(set)
         #self._unq_users['media'] = defaultdict(set)
+        self._kdes = {'urls':{}, 'media':{}} # kernel density estimators that will be linked to DateDeque timestamps
     @property
     def urls(self):
         return self._counters['urls']
@@ -53,6 +57,11 @@ class TweetCache(object):
         for k,v in self._cache['media'].iteritems():
             cnt[k] = len(set(entry[1] for entry in v))
         return cnt
+    @property
+    def scores(self):
+        urls  = dict( (k, v.link_predict()) for k,v in self._kdes['urls'].iteritems() )
+        media = dict( (k, v.link_predict()) for k,v in self._kdes['media'].iteritems() )
+        return {'urls':urls, 'media':media}
     def _internal_update(self, item, dict_type, user_id, data):
         url = item['expanded_url']
         # ignore any urls that are links to a landing page i.e. don't look like 
@@ -66,14 +75,19 @@ class TweetCache(object):
         #self._cache[dict_type][url].append(True)
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
+        if not self._kdes[dict_type].has_key(url): 
+            estimator = ExponentialKDELinked(scale=500)
+            estimator.link_container(self._cache[dict_type][url].TTL)
+            self._kdes[dict_type][url] = estimator
         self._refresh_all()
         self.publish()
     def _refresh_all(self):
-        for type, cache in self._cache.iteritems():
+        for dict_type, cache in self._cache.iteritems():
             for k, v in cache.iteritems():
-                self._counters[type][k] = len(v) # Presumes that calling len will induce expiration/flush.
-                if self._counters[type][k] == 0:
-                    self._counters[type].pop(k)
+                self._counters[dict_type][k] = len(v) # Presumes that calling len will induce expiration/flush.
+                if self._counters[dict_type][k] == 0:
+                    self._counters[dict_type].pop(k)
+                    self._kdes[dict_type].pop(k)
     def update(self, data):
         if any(k in data['entities'].keys() for k in ('urls', 'media')):
             self._stored = False
