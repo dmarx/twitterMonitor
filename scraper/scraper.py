@@ -41,6 +41,10 @@ class MyStreamer(TwythonStreamer):
             for i, item_count in enumerate(tweet_cache.url_users.most_common(10)): 
                 item, count = item_count
                 print "{} | {:.2f} | {}".format(count, 100*count/total_urls, item)
+            print "[URLs] By score"
+            for i, item_score in enumerate(tweet_cache.url_scores.most_common(10)): 
+                item, score = item_score
+                print "{:.2f} | {:.2f} | {}".format(score, score, item)
                 
             print "\n[MEDIA] By count"
             for i, item_count in enumerate(tweet_cache.media.most_common(10)):
@@ -50,10 +54,14 @@ class MyStreamer(TwythonStreamer):
             for i, item_count in enumerate(tweet_cache.media_users.most_common(10)): 
                 item, count = item_count
                 print "{} | {:.2f} | {}".format(count, 100*count/total_urls, item)
+            print "[MEDIA] By score"
+            for i, item_score in enumerate(tweet_cache.media_scores.most_common(10)): 
+                item, score = item_score
+                print "{:.2f} | {:.2f} | {}".format(score, score, item)
                 
             start = time.time()
             
-            raise Exception("FOOBAARRRR!!!")
+            #raise Exception("FOOBAARRRR!!!")
             
     def on_error(self, status_code, data):
         print "[ON ERROR]", status_code
@@ -79,5 +87,5 @@ if __name__ == "__main__":
         except Exception, e:
             exception_catcher[e] +=1
             print "[ERROR]", e, exception_catcher[e]
-            raise e
+            #raise e
     

@@ -5,6 +5,7 @@ try:
     import ujson as json
 except:
     import json
+import numpy as np
     
 #For exponential kde, scale=500 seems to work ok (this is just under 10 minutes, which I believe gives about an 18 minute halflife)
 from kde import NegGammaKDELinked, NegExponentialKDELinked
@@ -58,10 +59,11 @@ class TweetCache(object):
             cnt[k] = len(set(entry[1] for entry in v))
         return cnt
     @property
-    def scores(self):
-        urls  = dict( (k, v.link_predict()) for k,v in self._kdes['urls'].iteritems() )
-        media = dict( (k, v.link_predict()) for k,v in self._kdes['media'].iteritems() )
-        return {'urls':urls, 'media':media}
+    def url_scores(self):
+        return Counter(dict( (k, -np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
+    @property
+    def media_scores(self):
+        return Counter(dict( (k, -np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
     def _internal_update(self, item, dict_type, user_id, data):
         url = item['expanded_url']
         # ignore any urls that are links to a landing page i.e. don't look like 
