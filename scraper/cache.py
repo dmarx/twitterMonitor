@@ -8,7 +8,7 @@ except:
 import numpy as np
     
 #For exponential kde, scale=500 seems to work ok (this is just under 10 minutes, which I believe gives about an 18 minute halflife)
-from kde import NegGammaKDELinked, NegExponentialKDELinked
+from kde import NegGammaKDELinked, NegExponentialKDELinked, NegExpDecayKDELinked
     
 class TweetCache(object):
     def __init__(self, **kargs):
@@ -60,10 +60,12 @@ class TweetCache(object):
         return cnt
     @property
     def url_scores(self):
-        return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
+        #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
+        return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['urls'].iteritems() ))
     @property
     def media_scores(self):
-        return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
+        #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
+        return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['media'].iteritems() ))
     def _internal_update(self, item, dict_type, user_id, data):
         url = item['expanded_url']
         # ignore any urls that are links to a landing page i.e. don't look like 
@@ -78,7 +80,8 @@ class TweetCache(object):
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
         if not self._kdes[dict_type].has_key(url): 
-            estimator = NegExponentialKDELinked(scale=1/50.)
+            #estimator = NegExponentialKDELinked(scale=1/50.)
+            estimator = NegExpDecayKDELinked(halflife=600)
             estimator.link_container(self._cache[dict_type][url].TTL)
             self._kdes[dict_type][url] = estimator
         self._refresh_all()

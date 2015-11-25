@@ -2,9 +2,29 @@
 Generic kernel density estimation class, along with demo gamma and exponential 
 estimators to demonstrate inheritance. Default kernel is gaussian.
 """
-
+from __future__ import division
 import numpy as np
 import scipy.stats as stats
+
+def exp_decay(t, x0=1, decay_const=None, expected_lifetime=None, halflife=None):
+    """
+    A simple exponential decay function. One (and only one) of decay_const, 
+    expected_lifetime, or halflife must be set to a positive value.
+    """
+    assert sum(var is not None for var in 
+        (decay_const, expected_lifetime, halflife)) == 1
+    if expected_lifetime:
+        decay_const = 1/expected_lifetime
+    if halflife:
+        decay_const = np.log(2)/halflife
+    outv =  x0 * np.exp(-t * decay_const)
+    if not isinstance(t, np.ndarray):
+        if t<0:
+            outv = 0
+    else:
+        outv[t<0] = 0
+    return outv
+
 
 class KDE1d(object):
     def __init__(self, kernel=stats.norm.pdf, bw=1, normalized=True, **kargs):
@@ -81,6 +101,12 @@ class NegKDEMixin(object):
         oldkernel = self.kernel
         self.kernel = lambda x,**x_kargs: oldkernel(-1*x, **x_kargs)
         
+        
+        
+class ExpDecayKDE(KDE1d):
+    def __init__(self, **kargs):
+        super(ExpDecayKDE, self).__init__(kernel=exp_decay, normalized=False, **kargs)
+        
 class ExponentialKDE(KDE1d):
     def __init__(self, **kargs):
         super(ExponentialKDE, self).__init__(kernel=stats.expon.pdf, **kargs)
@@ -89,10 +115,20 @@ class GammaKDE(KDE1d):
     def __init__(self, **kargs):
         super(GammaKDE, self).__init__(kernel=stats.gamma.pdf, **kargs)
         
+        
+        
+class ExpDecayKDELinked(KDETrackingMixin, ExpDecayKDE):
+    pass
+        
 class ExponentialKDELinked(KDETrackingMixin, ExponentialKDE):
     pass
         
 class GammaKDELinked(KDETrackingMixin, GammaKDE):
+    pass
+        
+        
+        
+class NegExpDecayKDELinked(NegKDEMixin, ExpDecayKDELinked):
     pass
         
 class NegExponentialKDELinked(NegKDEMixin, ExponentialKDELinked):
@@ -100,6 +136,7 @@ class NegExponentialKDELinked(NegKDEMixin, ExponentialKDELinked):
         
 class NegGammaKDELinked(NegKDEMixin, GammaKDELinked):
     pass
+        
         
         
 class ExponentialKDELinkedDates(ExponentialKDE, KDEDatetimeMixin):
