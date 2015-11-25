@@ -53,7 +53,7 @@ class MyStreamer(TwythonStreamer):
                 
             start = time.time()
             
-            #raise Exception("FOOBAARRRR!!!")
+            raise Exception("FOOBAARRRR!!!")
             
     def on_error(self, status_code, data):
         print "[ON ERROR]", status_code
@@ -79,5 +79,5 @@ if __name__ == "__main__":
         except Exception, e:
             exception_catcher[e] +=1
             print "[ERROR]", e, exception_catcher[e]
-            #raise e
+            raise e
     

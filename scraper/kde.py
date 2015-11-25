@@ -62,9 +62,17 @@ class KDETrackingMixin(object):
     def link_container(self, x):
         """Register a container whose values we'll track by referencing the object with each predict call."""
         self._linked_loci = x
-    def link_predict(self, x=np.zeros(1)):
-        self.fit(np.asarray(self._linked_loci()), update=False)
-        return self.predict(self.loci[0])
+    def link_predict(self, x=None):
+        #del self.loci
+        #self.fit(np.asarray(self._linked_loci()))
+        self.fit()
+        if x is None:
+            x = self.loci[0]
+        return self.predict(x)
+    def fit(self):
+        if hasattr(self, 'loci'):
+            del self.loci # this is nasty, and also may not do anything.
+        super(KDETrackingMixin, self).fit(np.asarray(self._linked_loci()))
         
 class ExponentialKDE(KDE1d):
     def __init__(self, **kargs):
@@ -74,10 +82,10 @@ class GammaKDE(KDE1d):
     def __init__(self, **kargs):
         super(GammaKDE, self).__init__(kernel=stats.gamma.pdf, **kargs)
         
-class ExponentialKDELinked(ExponentialKDE, KDETrackingMixin):
+class ExponentialKDELinked(KDETrackingMixin, ExponentialKDE):
     pass
         
-class GammaKDELinked(GammaKDE, KDETrackingMixin):
+class GammaKDELinked(KDETrackingMixin, GammaKDE):
     pass
         
 class ExponentialKDELinkedDates(ExponentialKDE, KDEDatetimeMixin):
