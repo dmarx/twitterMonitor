@@ -39,16 +39,23 @@ def home():
                 var source = new EventSource('/stream');
                 var out = document.getElementById('out');
                 source.onmessage = function(e) {
-                    console.log("received");
-                    // XSS in chat is fun
                     data = e.data;
-                    //out.innerHTML = data + '\\n' + out.innerHTML;
                     obj = JSON.parse(data);
-                    focus = obj['urls']['top_by_count'];
-                    //console.log(focus[0]['url']);
-                    console.log("doing the thing");
                     
                     out.innerHTML = ''; // truncate existing text
+                    
+                    out.innerHTML = out.innerHTML + "[URLS]\\n"
+                    focus = obj['urls']['top_by_count'];
+                    for(i=0;i<focus.length;i++){
+                        var insert_text = focus[i]['rank'] +"\t|\t"+ 
+                                         focus[i]['score'] +"\t|\t"+ 
+                                         '<a href="' + focus[i]['url'] + '">' + focus[i]['url'] +"</a>"+ '\\n';
+                        console.log(insert_text);
+                        out.innerHTML =  out.innerHTML + insert_text;
+                    };
+                    
+                    out.innerHTML = out.innerHTML + "\\n\\n[MEDIA]\\n"
+                    focus = obj['media']['top_by_count'];
                     for(i=0;i<focus.length;i++){
                         var insert_text = focus[i]['rank'] +"\t|\t"+ 
                                          focus[i]['score'] +"\t|\t"+ 
