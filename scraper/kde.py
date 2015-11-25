@@ -67,12 +67,19 @@ class KDETrackingMixin(object):
         #self.fit(np.asarray(self._linked_loci()))
         self.fit()
         if x is None:
-            x = self.loci[0]
+            x = np.zeros(1) #self.loci[0]
         return self.predict(x)
     def fit(self):
         if hasattr(self, 'loci'):
             del self.loci # this is nasty, and also may not do anything.
         super(KDETrackingMixin, self).fit(np.asarray(self._linked_loci()))
+    
+# reverse the propogation direction of the parent class's kernel
+class NegKDEMixin(object):
+    def __init__(self, **kargs):
+        super(NegKDEMixin, self).__init__(**kargs)
+        oldkernel = self.kernel
+        self.kernel = lambda x,**x_kargs: oldkernel(-1*x, **x_kargs)
         
 class ExponentialKDE(KDE1d):
     def __init__(self, **kargs):
@@ -87,6 +94,13 @@ class ExponentialKDELinked(KDETrackingMixin, ExponentialKDE):
         
 class GammaKDELinked(KDETrackingMixin, GammaKDE):
     pass
+        
+class NegExponentialKDELinked(NegKDEMixin, ExponentialKDELinked):
+    pass
+        
+class NegGammaKDELinked(NegKDEMixin, GammaKDELinked):
+    pass
+        
         
 class ExponentialKDELinkedDates(ExponentialKDE, KDEDatetimeMixin):
     pass

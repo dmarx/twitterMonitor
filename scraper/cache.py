@@ -7,7 +7,7 @@ except:
     import json
     
 #For exponential kde, scale=500 seems to work ok (this is just under 10 minutes, which I believe gives about an 18 minute halflife)
-from kde import GammaKDELinked, ExponentialKDELinked
+from kde import NegGammaKDELinked, NegExponentialKDELinked
     
 class TweetCache(object):
     def __init__(self, **kargs):
@@ -76,7 +76,7 @@ class TweetCache(object):
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
         if not self._kdes[dict_type].has_key(url): 
-            estimator = ExponentialKDELinked(scale=500)
+            estimator = NegExponentialKDELinked(scale=500)
             estimator.link_container(self._cache[dict_type][url].TTL)
             self._kdes[dict_type][url] = estimator
         self._refresh_all()
