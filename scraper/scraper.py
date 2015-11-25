@@ -6,7 +6,7 @@ from requests.exceptions import ChunkedEncodingError
 from cache import TweetCache
 
 import time
-start = 0
+start = time.time()
 update_interval = 60
 
 # Looks like the TwythonStreamer class handles rate limiting for me!
@@ -52,6 +52,9 @@ class MyStreamer(TwythonStreamer):
                 print "{} | {:.2f} | {}".format(count, 100*count/total_urls, item)
                 
             start = time.time()
+            
+            #raise Exception("FOOBAARRRR!!!")
+            
     def on_error(self, status_code, data):
         print "[ON ERROR]", status_code
 
@@ -76,4 +79,5 @@ if __name__ == "__main__":
         except Exception, e:
             exception_catcher[e] +=1
             print "[ERROR]", e, exception_catcher[e]
+            #raise e
     
