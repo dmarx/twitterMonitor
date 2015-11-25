@@ -68,7 +68,10 @@ if __name__ == "__main__":
             stream.statuses.filter(track=
                 ['terrorist','terrorists','attack','attacked','killed',
                 'hostage','hostages','explosion','bomb','bomber','gunman',
-                'gunmen', 'breaking', 'war'])
+                'gunmen','breaking','war','dead','injured','emergency', 
+                'casualties','kidnapped','mob','protest','protesters',
+                'shooting','gunfire','arrested','alleged','suspect','suspects',
+                'suspected'])
             #stream.statuses.sample()
         except Exception, e:
             exception_catcher[e] +=1
