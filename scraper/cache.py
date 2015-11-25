@@ -78,7 +78,7 @@ class TweetCache(object):
         self._cache[dict_type][url].append(user_id)
         self._counters[dict_type][url] = len(self._cache[dict_type][url])
         if not self._kdes[dict_type].has_key(url): 
-            estimator = NegExponentialKDELinked(scale=500)
+            estimator = NegExponentialKDELinked(scale=1/50.)
             estimator.link_container(self._cache[dict_type][url].TTL)
             self._kdes[dict_type][url] = estimator
         self._refresh_all()

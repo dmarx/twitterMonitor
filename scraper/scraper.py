@@ -44,7 +44,8 @@ class MyStreamer(TwythonStreamer):
             print "[URLs] By score"
             for i, item_score in enumerate(tweet_cache.url_scores.most_common(10)): 
                 item, score = item_score
-                print "{:.4f} | {:.4f} | {}".format(score, score, item)
+                count = tweet_cache.urls[item]
+                print "{:.4f} | {:.4f} | {}".format(count, score, item)
                 
             print "\n[MEDIA] By count"
             for i, item_count in enumerate(tweet_cache.media.most_common(10)):
@@ -57,7 +58,8 @@ class MyStreamer(TwythonStreamer):
             print "[MEDIA] By score"
             for i, item_score in enumerate(tweet_cache.media_scores.most_common(10)): 
                 item, score = item_score
-                print "{:.4f} | {:.4f} | {}".format(score, score, item)
+                count = tweet_cache.media[item]
+                print "{:.4f} | {:.4f} | {}".format(count, score, item)
                 
             start = time.time()
             
