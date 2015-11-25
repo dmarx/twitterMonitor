@@ -60,10 +60,10 @@ class TweetCache(object):
         return cnt
     @property
     def url_scores(self):
-        return Counter(dict( (k, -np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
+        return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
     @property
     def media_scores(self):
-        return Counter(dict( (k, -np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
+        return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
     def _internal_update(self, item, dict_type, user_id, data):
         url = item['expanded_url']
         # ignore any urls that are links to a landing page i.e. don't look like 
