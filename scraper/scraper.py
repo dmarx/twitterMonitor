@@ -16,8 +16,10 @@ tweet_cache = TweetCache(minutes=60)
 #tweet_cache=[]
 N=0
 M=0
+
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
+        self.backoff = 1
         if 'text' not in data: # more general. handles all notices 
             return
         global tweet_cache
@@ -66,8 +68,16 @@ class MyStreamer(TwythonStreamer):
             #raise Exception("FOOBAARRRR!!!")
             
     def on_error(self, status_code, data):
+        if not hasattr(self, 'backoff'):
+            self.backoff = 1
         print "[ON ERROR]", status_code
-
+        if status_code == 420:
+            print "Sleeping", self.backoff
+            time.sleep(self.backoff)
+            self.backoff *= 2 # Exponential backoff
+            if self.backoff > 15*60: # Don't sleep longer than 15 minutes
+                self.backoff = 15*60
+            
 if __name__ == "__main__":
     from collections import Counter
     exception_catcher = Counter()
