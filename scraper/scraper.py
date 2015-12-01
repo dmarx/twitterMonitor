@@ -72,6 +72,7 @@ class MyStreamer(TwythonStreamer):
             self.backoff = 1
         print "[ON ERROR]", status_code
         if status_code == 420:
+            #raise Exception
             print "Sleeping", self.backoff
             time.sleep(self.backoff)
             self.backoff *= 2 # Exponential backoff
@@ -89,14 +90,17 @@ if __name__ == "__main__":
     while True:
         try:
             stream.statuses.filter(track=
-                ['terrorist','terrorists','attack','attacked','killed',
+                ['terrorist','terrorists','attack','attacked','attacks','killed',
                 'hostage','hostages','explosion','bomb','bomber','gunman',
                 'gunmen','breaking','war','dead','injured','emergency', 
                 'casualties','kidnapped','mob','protest','protesters',
                 'shooting','gunfire','arrested','alleged','suspect','suspects',
-                'suspected'])
+                'suspected','assassinate','assassinated'])
             #stream.statuses.sample()
-        except Exception, e:
+        except ChunkedEncodingError, e:
+            exception_catcher[e] +=1
+            print "[ERROR]", e, exception_catcher[e]
+        except Exception, e:        
             exception_catcher[e] +=1
             print "[ERROR]", e, exception_catcher[e]
             #raise e
