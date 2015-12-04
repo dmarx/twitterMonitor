@@ -56,6 +56,9 @@
         
         $.getJSON($SCRIPT_ROOT + '/get_data', {},  
                   function(newdata) {
+                    temp.length=0;
+                    console.log('temp flushed');
+                    console.log(temp);
                     console.log('newdata');
                     console.log(newdata);
                     console.log('wtf');
