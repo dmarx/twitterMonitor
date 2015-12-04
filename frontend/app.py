@@ -37,8 +37,8 @@ def monitor_stream():
             #stream.statuses.sample()
         except ChunkedEncodingError, e:
             print "[ERROR]", e
-        #except Exception, e:
-        #    print "[ERROR]", e
+        except Exception, e:
+            print "[ERROR]", e
 
 # Start the data monitor
 
