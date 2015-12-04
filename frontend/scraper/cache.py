@@ -85,7 +85,7 @@ class TweetCache(object):
             estimator.link_container(self._cache[dict_type][url].TTL)
             self._kdes[dict_type][url] = estimator
         self._refresh_all()
-        #self.publish()
+        self.publish()
     def _refresh_all(self):
         for dict_type, cache in self._cache.iteritems():
             for k, v in cache.iteritems():
@@ -154,7 +154,7 @@ class TweetCache(object):
                         self._last_msg = msg
                         #self.publish(msg)
                         self._pubsub.publish(self._pubsub_channel, msg)
-        #self.publish = publish
+        self.publish = publish
     @property
     def _message(self):
         total_urls  = sum(self.urls.values())
