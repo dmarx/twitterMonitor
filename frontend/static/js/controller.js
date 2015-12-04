@@ -1,11 +1,10 @@
     
     var n = 100; 
     var data=[0];
-    /*
-    var n = 40,
-        random = d3.random.normal(0, .2),
-        data = d3.range(n).map(random);
-    */
+    var temp=[];
+
+    var random = d3.random.normal(0, .2);
+    //var data = d3.range(n).map(random);
 
     var margin = {top: 20, right: 20, bottom: 20, left: 40},
         width = 960 - margin.left - margin.right,
@@ -55,10 +54,37 @@
 
     function tick() {
         
-    $.getJSON($SCRIPT_ROOT + '/get_data', {},  
-              function(newdata) {data = newdata.score ;});
-
+        $.getJSON($SCRIPT_ROOT + '/get_data', {},  
+                  function(newdata) {
+                    console.log('newdata');
+                    console.log(newdata);
+                    console.log('wtf');
+                    temp.push(newdata); 
+                    console.log('inner temp');
+                    console.log(temp);
+                    console.log('inner exit');
+                    }
+                  );
+        //empty the data array and populate it with the new data
+        data.length =0;
+        var temp2 = temp.pop();
+        console.log('temp2');
+        console.log(temp2);
         
+        var temp3 = temp2.result.score
+        console.log('temp3');
+        console.log(temp3);
+        
+        for(i=0; i<temp3.length; i++){
+            console.log('pushing from temp to data');
+            data.push(temp3[i]);
+        };
+        
+        console.log('temp');
+        console.log(temp);
+        console.log('data');
+        console.log(data);
+    
       // push a new data point onto the back
       //data.push(random());
 
