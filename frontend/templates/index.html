@@ -1,64 +1,17 @@
-<!doctype html>
-<title>Twitter Monitor</title>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-<style>body { max-width: 500px; margin: auto; padding: 1em; background: black; color: #fff; font: 16px/1.6 menlo, monospace; }</style>
-<body>
-<div id="top-urls">
-    <table id="top-urls">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Score</th>
-                <th>URL</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
-<script>
-    var obj;
-    var data;
-    //function sse() {
-        var source = new EventSource('/stream');
-        //var source = new EventSource('{{ url_for('stream') }}');
-        //var out = document.getElementById('out');
-        source.onmessage = function(e) {
-            data = e;
-            console.log("message received!");
-            console.log(e.data);
-            obj = JSON.parse(e.data);
-            d3.select("table#top-urls-records>tbody").remove();
-            var tbody = d3.select("table#top-urls-records").append('tbody');
-            tr = tbody.selectAll("tr")
-                .data(obj['urls']['top_by_count'])
-                .enter()
-                .append("tr")
-                .attr("class", "result-record");
-            columns = ['rank','score','url'];
-            
-            for(i=0;i<columns.length;i++){
-                    var col=columns[i];
-                    if(col=='url'){
-                        tr.append('td')
-                          .append('a')
-                          .attr('href', function(d) {return d[col];})
-                          .attr('target',"_blank")
-                          .text(function(d){return d[col];})
-                        ;
-                    } else //if(col!='comment_id')
-                    {
-                        tr.append("td")
-                          .text(function(d){return d[col];})
-                          ;
-                    };
-                };
-            
-            //out.innerHTML =  e.data + '\\n' + out.innerHTML;
-            
-        };
-    //};
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
     
-    //sse();
-</script>
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+</head>
+<body>
+
+<script src="{{  url_for('static', filename='js/controller.js')  }}"></script>
