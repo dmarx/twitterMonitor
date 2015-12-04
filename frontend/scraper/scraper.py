@@ -99,9 +99,9 @@ if __name__ == "__main__":
             #stream.statuses.sample()
         except ChunkedEncodingError, e:
             exception_catcher[e] +=1
-            print "[ERROR]", e, exception_catcher[e]
+            print "[SCRAPER ERROR]", e, exception_catcher[e]
         except Exception, e:        
             exception_catcher[e] +=1
-            print "[ERROR]", e, exception_catcher[e]
+            print "[SCRAPER ERROR]", e, exception_catcher[e]
             #raise e
     

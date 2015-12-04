@@ -36,9 +36,9 @@ def monitor_stream():
                 'suspected','assassinate','assassinated'])
             #stream.statuses.sample()
         except ChunkedEncodingError, e:
-            print "[ERROR]", e
+            print "[APP ERROR]", e
         except Exception, e:
-            print "[ERROR]", e
+            print "[APP ERROR]", e
 
 # Start the data monitor
 

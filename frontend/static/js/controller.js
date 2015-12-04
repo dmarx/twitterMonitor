@@ -50,7 +50,6 @@
         .attr("class", "line")
         .attr("d", line);
 
-    tick();
 
     function tick() {
         
@@ -95,14 +94,20 @@
       // redraw the line, and slide it to the left
       path
           .attr("d", line)
+          /*
           .attr("transform", null)
         .transition()
           .duration(500)
           .ease("linear")
           .attr("transform", "translate(" + -1*x(-1) + ",0)")
-          .each("end", tick);
+          .each("end", tick)
+          */
+          ;
 
       // pop the old data point off the front
       //data.shift();
 
     };
+    
+tick();
+setInterval('tick()', .1); // tick every tenth of a second.
