@@ -49,32 +49,34 @@ app = flask.Flask(__name__)
 app.secret_key = 'asdf'
 
 
-@app.route('/get_data')
-def get_data():
-    n=1000
-    try:
-        item = tweet_cache.media_scores.most_common(1)[0]
-    except:
-        return flask.jsonify(result={'time':[0], 'delta':[0], 'url':'NULL', 'score':[0]})
-    print "\n\n~~ITEM"
-    print item
-    print "\n\n~~ITEM"
+def process_item(item, now, n=1000, totsec = 5*60):
+    """Process an entry from a cache Counter object"""
     url, score = item
     # Pass in timestamps we want scores for. Might actually make more sense to send
     # these in from the POST request. Anyway, need to pass values into the appropriate KDE
     # to retrieve associated scores.
-    now = DateDeque.timestamp()
-    # let's go back 5 minutes and return 100 scores
-    totsec = 5*60 # 300
     delta_sec = np.linspace(0, totsec, n)
     kde = tweet_cache._kdes['media'][url]
-    scores = [float(s) for s in kde.link_predict(delta_sec)]
+    scores = [float(s) for s in kde.link_predict(delta_sec)] # Instead of calculating all these scores, I really only need the most recent score, as long as they're calculated at regular intervals.
     t=[now - dt.timedelta(seconds=d) for d in delta_sec]
     t_epoch = [(t0 - dt.datetime(year=1970, month=1, day=1)).total_seconds() for t0 in t]
-    data = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
-    j = flask.jsonify(result=data)
-    print j
-    return j # return only single latest message
+    datum = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
+    return datum
+
+@app.route('/get_data')
+def get_data():
+    n=1000
+    try:
+        #item = tweet_cache.media_scores.most_common(1)[0]
+        items = tweet_cache.media_scores.most_common(2)
+        now = DateDeque.timestamp()
+        data = [process_item(item, now, n) for item in items]
+    except:
+        data = [{'time':[0], 'delta':[0], 'url':'NULL', 'score':[0]}]
+    print "len data:", len(data)
+    if len(data) > 0 and type(data) == type([]):
+        print "keys:", data[0].keys()
+    return flask.jsonify(result=data)
     
 @app.route('/')
 def index():

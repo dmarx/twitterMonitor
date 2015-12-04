@@ -1,6 +1,6 @@
     
     var n = 1000; 
-    var data=[0];
+    var data=[[0][0]];
     var temp=[];
 
     var random = d3.random.normal(0, .2);
@@ -43,10 +43,12 @@
         .attr("class", "y axis")
         .call(d3.svg.axis().scale(y).orient("left"));
 
-    var path = svg.append("g")
+    var path = svg.selectAll(".scoreline")
+        .data(data)
+        .enter()
+        .append("g")
         .attr("clip-path", "url(#clip)")
       .append("path")
-        .datum(data)
         .attr("class", "line")
         .attr("d", line);
 
@@ -73,14 +75,14 @@
         console.log('temp2');
         console.log(temp2);
         
-        var temp3 = temp2.result.score
+        var temp3 = temp2.result//.score
         console.log('temp3');
         console.log(temp3);
         
         for(i=0; i<temp3.length; i++){
             console.log('pushing from temp to data');
             //data.push(temp3[i]);
-            data[i] = temp3[i];
+            data[i] = temp3[i].score;
         };
         
         console.log('temp');
@@ -92,22 +94,27 @@
       //data.push(random());
 
       // redraw the line, and slide it to the left
+      /*
       path
           .attr("d", line)
-          /*
-          .attr("transform", null)
-        .transition()
-          .duration(500)
-          .ease("linear")
-          .attr("transform", "translate(" + -1*x(-1) + ",0)")
-          .each("end", tick)
-          */
+      */
+     var path = svg.selectAll(".scoreline");
+     path.remove();
+     var path = svg.selectAll(".scoreline")
+        .data(data)
+        .enter()
+        .append("g")
+        .attr("clip-path", "url(#clip)")
+      .append("path")
+        .attr("class", "line")
+        .attr("d", line);
+      
           ;
 
       // pop the old data point off the front
       //data.shift();
-
+    console.log('end tick');
     };
     
 //tick();
-setInterval('tick()', .1); // tick every tenth of a second.
+setInterval('tick()', 100); // tick every tenth of a second.
