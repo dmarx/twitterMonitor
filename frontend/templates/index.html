@@ -17,6 +17,10 @@
 <script src="{{  url_for('static', filename='js/controller.js')  }}"></script>
 <script>
     $( document ).ready(function() {
-        tick();
+        console.log('first tick');
+        //tick();
+        console.log('end first tick');
+        setInterval('tick()', 100); // tick every tenth of a second.
+        console.log('interval set');
     });
 </script>

@@ -4,10 +4,13 @@
     var temp=[]; // array that will be used as an intermediary to pass the ajax response into the global scope
     var data=[]; // this is what the line data will ultimately be bound to.
     for(i=0;i<m;i++){
-        data.push([0]);
+        data.push([{url:'', score:0, timestamp:0, i:0}]);
     };
     
-    
+    // To start with, lots set series color to rank.
+    // as a url changes in rank though, we don't want it to change color. 
+    // Fix urls to colors using a hash map that
+    var color = d3.scale.category10();
     
     //var random = d3.random.normal(0, .2);
     //var data = d3.range(n).map(random);
@@ -60,7 +63,9 @@
         .attr("clip-path", "url(#clip)")
       .append("path")
         .attr("class", "line")
-        .attr("d", line);
+        .attr("d", function(d) { return line(d.values); })
+        .style("stroke", function(d) { return color(d.rank); });
+        ;
 
 
     function tick() {
@@ -77,15 +82,17 @@
                     console.log('inner temp');
                     console.log(temp);
                     console.log('inner exit');
-                    }
+                    };
                   );
         //empty the data array and populate it with the new data
+        console.log('past ajax. flushing old data obj');
         data.length =0;
+        console.log('assigning temp2');
         var temp2 = temp.pop();
         console.log('temp2');
         console.log(temp2);
         
-        var temp3 = temp2.result//.score
+        var temp3 = temp2.result;//.score
         console.log('temp3');
         console.log(temp3);
         
@@ -95,8 +102,8 @@
             data[i] = temp3[i];
         };
         
-        console.log('temp');
-        console.log(temp);
+        console.log('temp3');
+        console.log(temp3);
         console.log('data');
         console.log(data);
     
@@ -118,9 +125,9 @@
         .attr("clip-path", "url(#clip)")
       .append("path")
         .attr("class", "line")
-        .attr("d", line);
-      
-          ;
+        .attr("d", function(d) { return line(d.values); })
+        .style("stroke", function(d) { return color(d.rank); })
+        ;
 
       // pop the old data point off the front
       //data.shift();

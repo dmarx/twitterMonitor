@@ -51,6 +51,7 @@ app.secret_key = 'asdf'
 
 def process_item(item, now, n=1000, totsec = 5*60):
     """Process an entry from a cache Counter object"""
+    #print item
     url, score = item
     # Pass in timestamps we want scores for. Might actually make more sense to send
     # these in from the POST request. Anyway, need to pass values into the appropriate KDE
@@ -62,27 +63,35 @@ def process_item(item, now, n=1000, totsec = 5*60):
     t_epoch = [(t0 - dt.datetime(year=1970, month=1, day=1)).total_seconds() for t0 in t]
     datum = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
     # We actually want the transpose of this.
-    datum2 = []
+    datum2 = {'url':datum['url']}
+    values = []
     for i in range(n):
         rec = {'time': datum['time'][i],
                'delta':datum['delta'][i],
                'score':datum['score'][i],
-               'url':  datum['url'],
+               #'url':  datum['url'],
                'i':i
             }
-        datum2.append(rec)
+        values.append(rec)
+    datum2['values'] = values
     return datum2
 
 @app.route('/get_data')
 def get_data():
     n=1000
-    try:
-        #item = tweet_cache.media_scores.most_common(1)[0]
-        items = tweet_cache.media_scores.most_common(2)
-        now = DateDeque.timestamp()
-        data = [process_item(item, now, n) for item in items]
-    except:
-        data = [{'time':[0], 'delta':[0], 'url':'NULL', 'score':[0]}]
+    #try:
+    #item = tweet_cache.media_scores.most_common(1)[0]
+    items = tweet_cache.media_scores.most_common(2)
+    now = DateDeque.timestamp()
+    #data = [process_item(item, now, n) for item in items]
+    data = []
+    for i, item in enumerate(items):
+        datum = process_item(item, now, n)
+        datum['rank'] = i
+        data.append(datum)
+    #except Exception, e:
+    #    raise e
+    #    data = [{'time':[0], 'delta':[0], 'url':'NULL', 'score':[0]}]
     print "len data:", len(data)
     #if len(data) > 0 and type(data) == type([]):
     #    print "keys:", data[0].keys()
