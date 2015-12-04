@@ -1,6 +1,6 @@
     
     var n = 1000; // number of data points to draw
-    var m = 2; // number of lines to draw (i.e. number of items to report on)
+    var m = 5; // number of lines to draw (i.e. number of items to report on)
     var temp=[]; // array that will be used as an intermediary to pass the ajax response into the global scope
     var data=[]; // this is what the line data will ultimately be bound to.
     for(i=0;i<m;i++){
@@ -69,20 +69,16 @@
 
 
     function tick() {
-        
-        $.getJSON($SCRIPT_ROOT + '/get_data', {},  
+        var args = {n_trackers:m};
+        console.log('args');
+        console.log(args);
+        $.getJSON($SCRIPT_ROOT + '/get_data', args)
+            .success(
                   function(newdata) {
                     temp.length=0;
-                    console.log('temp flushed');
-                    console.log(temp);
-                    console.log('newdata');
-                    console.log(newdata);
-                    console.log('wtf');
                     temp.push(newdata); 
-                    console.log('inner temp');
-                    console.log(temp);
                     console.log('inner exit');
-                    };
+                    }
                   );
         //empty the data array and populate it with the new data
         console.log('past ajax. flushing old data obj');

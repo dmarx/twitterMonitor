@@ -79,9 +79,10 @@ def process_item(item, now, n=1000, totsec = 5*60):
 @app.route('/get_data')
 def get_data():
     n=1000
+    n_trackers = flask.request.args.get('n_trackers', 4, type=int) 
     #try:
     #item = tweet_cache.media_scores.most_common(1)[0]
-    items = tweet_cache.media_scores.most_common(2)
+    items = tweet_cache.media_scores.most_common(n_trackers)
     now = DateDeque.timestamp()
     #data = [process_item(item, now, n) for item in items]
     data = []
