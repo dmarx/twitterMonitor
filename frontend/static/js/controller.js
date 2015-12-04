@@ -1,9 +1,15 @@
     
-    var n = 1000; 
-    var data=[[0][0]];
-    var temp=[];
-
-    var random = d3.random.normal(0, .2);
+    var n = 1000; // number of data points to draw
+    var m = 2; // number of lines to draw (i.e. number of items to report on)
+    var temp=[]; // array that will be used as an intermediary to pass the ajax response into the global scope
+    var data=[]; // this is what the line data will ultimately be bound to.
+    for(i=0;i<m;i++){
+        data.push([0]);
+    };
+    
+    
+    
+    //var random = d3.random.normal(0, .2);
     //var data = d3.range(n).map(random);
 
     var margin = {top: 20, right: 20, bottom: 20, left: 40},
@@ -19,8 +25,12 @@
         .range([height, 0]);
 
     var line = d3.svg.line()
+    /*
         .x(function(d, i) { return x(i); })
         .y(function(d, i) { return y(d); });
+        */
+        .x(function(d, i) { return x(d.i); })
+        .y(function(d, i) { return y(d.score); });
 
     var svg = d3.select("body").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -82,7 +92,7 @@
         for(i=0; i<temp3.length; i++){
             console.log('pushing from temp to data');
             //data.push(temp3[i]);
-            data[i] = temp3[i].score;
+            data[i] = temp3[i];
         };
         
         console.log('temp');

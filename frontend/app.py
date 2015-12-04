@@ -61,7 +61,17 @@ def process_item(item, now, n=1000, totsec = 5*60):
     t=[now - dt.timedelta(seconds=d) for d in delta_sec]
     t_epoch = [(t0 - dt.datetime(year=1970, month=1, day=1)).total_seconds() for t0 in t]
     datum = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
-    return datum
+    # We actually want the transpose of this.
+    datum2 = []
+    for i in range(n):
+        rec = {'time': datum['time'][i],
+               'delta':datum['delta'][i],
+               'score':datum['score'][i],
+               'url':  datum['url'],
+               'i':i
+            }
+        datum2.append(rec)
+    return datum2
 
 @app.route('/get_data')
 def get_data():
@@ -74,8 +84,8 @@ def get_data():
     except:
         data = [{'time':[0], 'delta':[0], 'url':'NULL', 'score':[0]}]
     print "len data:", len(data)
-    if len(data) > 0 and type(data) == type([]):
-        print "keys:", data[0].keys()
+    #if len(data) > 0 and type(data) == type([]):
+    #    print "keys:", data[0].keys()
     return flask.jsonify(result=data)
     
 @app.route('/')
