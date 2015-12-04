@@ -51,7 +51,7 @@ app.secret_key = 'asdf'
 
 @app.route('/get_data')
 def get_data():
-    n=100
+    n=1000
     item = tweet_cache.media_scores.most_common(1)[0]
     print "\n\n~~ITEM"
     print item

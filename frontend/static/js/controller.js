@@ -1,5 +1,5 @@
     
-    var n = 100; 
+    var n = 1000; 
     var data=[0];
     var temp=[];
 
