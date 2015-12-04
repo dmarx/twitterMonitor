@@ -104,6 +104,7 @@
         .data(data)
         .enter()
         .append("g")
+        .attr("class", "scoreline")
         .attr("clip-path", "url(#clip)")
       .append("path")
         .attr("class", "line")
@@ -118,3 +119,4 @@
     
 //tick();
 setInterval('tick()', 100); // tick every tenth of a second.
+//setInterval('tick()', 30000); // tick every tenth of a second.
