@@ -77,7 +77,8 @@
         
         for(i=0; i<temp3.length; i++){
             console.log('pushing from temp to data');
-            data.push(temp3[i]);
+            //data.push(temp3[i]);
+            data[i] = temp3[i];
         };
         
         console.log('temp');
@@ -95,7 +96,7 @@
         .transition()
           .duration(500)
           .ease("linear")
-          .attr("transform", "translate(" + x(-1) + ",0)")
+          .attr("transform", "translate(" + -1*x(-1) + ",0)")
           .each("end", tick);
 
       // pop the old data point off the front
