@@ -51,7 +51,11 @@ app.secret_key = 'asdf'
 
 @app.route('/get_data')
 def get_data():
-    url, score = tweet_cache.media_scores.most_common(1)
+    item = tweet_cache.media_scores.most_common(1)[0]
+    print "\n\n~~ITEM"
+    print item
+    print "\n\n~~ITEM"
+    url, score = item
     # Pass in timestamps we want scores for. Might actually make more sense to send
     # these in from the POST request. Anyway, need to pass values into the appropriate KDE
     # to retrieve associated scores.
@@ -60,11 +64,13 @@ def get_data():
     totsec = 5*60
     delta_sec = np.linspace(0, totsec)
     kde = tweet_cache._kdes['media'][url]
-    scores = kde.link_predict(delta_sec)
-    t=[now - d for d in delta_sec]
-    t_epoch = [(t - dt.datetime(year=1970, month=1, day=1)).total_seconds()]
-    result = {'time':t_epoch, 'delta':delta_sec, 'url':url, 'score':scores}
-    return jsonify(result=None) # return only single latest message
+    scores = [float(s) for s in kde.link_predict(delta_sec)]
+    t=[now - dt.timedelta(seconds=d) for d in delta_sec]
+    t_epoch = [(t0 - dt.datetime(year=1970, month=1, day=1)).total_seconds() for t0 in t]
+    data = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
+    j = flask.jsonify(result=data)
+    print j
+    return j # return only single latest message
     
 @app.route('/')
 def home():
