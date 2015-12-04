@@ -109,5 +109,5 @@
 
     };
     
-tick();
+//tick();
 setInterval('tick()', .1); // tick every tenth of a second.

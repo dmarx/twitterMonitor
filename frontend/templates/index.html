@@ -9,9 +9,14 @@
     
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
     <script type=text/javascript>
-      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
 </head>
 <body>
 
 <script src="{{  url_for('static', filename='js/controller.js')  }}"></script>
+<script>
+    $( document ).ready(function() {
+        tick();
+    });
+</script>

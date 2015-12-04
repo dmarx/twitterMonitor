@@ -38,7 +38,7 @@ def monitor_stream():
         except ChunkedEncodingError, e:
             print "[APP ERROR]", e
         except Exception, e:
-            print "[APP ERROR]", e
+            print "[APP ERROR]", e # for some reason this breaks the app. 
 
 # Start the data monitor
 
@@ -52,7 +52,10 @@ app.secret_key = 'asdf'
 @app.route('/get_data')
 def get_data():
     n=1000
-    item = tweet_cache.media_scores.most_common(1)[0]
+    try:
+        item = tweet_cache.media_scores.most_common(1)[0]
+    except:
+        return flask.jsonify(result={'time':[0], 'delta':[0], 'url':'NULL', 'score':[0]})
     print "\n\n~~ITEM"
     print item
     print "\n\n~~ITEM"
