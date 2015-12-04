@@ -76,7 +76,13 @@ def get_data():
 def home():
     return """
 <!DOCTYPE html>
-<meta charset="utf-8">
+
+<head>
+    <meta charset="utf-8">
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+</head>
 <style>
 
 svg {
@@ -98,12 +104,16 @@ svg {
 
 </style>
 <body>
-<script src="//d3js.org/d3.v3.min.js"></script>
-<script>
 
+<script>
+    
+    var n = 100; 
+    var data;
+    /*
     var n = 40,
         random = d3.random.normal(0, .2),
         data = d3.range(n).map(random);
+    */
 
     var margin = {top: 20, right: 20, bottom: 20, left: 40},
         width = 960 - margin.left - margin.right,
@@ -152,9 +162,13 @@ svg {
     tick();
 
     function tick() {
+        
+    $.getJSON($SCRIPT_ROOT + '/_submit_contact_info', {},  
+              function(newdata) { data = newdata ;});
 
+        
       // push a new data point onto the back
-      data.push(random());
+      //data.push(random());
 
       // redraw the line, and slide it to the left
       path
@@ -167,9 +181,9 @@ svg {
           .each("end", tick);
 
       // pop the old data point off the front
-      data.shift();
+      //data.shift();
 
-    }
+    };
     """
 
 if __name__ == '__main__':
