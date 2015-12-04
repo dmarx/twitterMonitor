@@ -15,7 +15,7 @@
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([-1, 1])
+        .domain([-1, 100])
         .range([height, 0]);
 
     var line = d3.svg.line()
