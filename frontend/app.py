@@ -51,6 +51,7 @@ app.secret_key = 'asdf'
 
 @app.route('/get_data')
 def get_data():
+    n=100
     item = tweet_cache.media_scores.most_common(1)[0]
     print "\n\n~~ITEM"
     print item
@@ -61,8 +62,8 @@ def get_data():
     # to retrieve associated scores.
     now = DateDeque.timestamp()
     # let's go back 5 minutes and return 100 scores
-    totsec = 5*60
-    delta_sec = np.linspace(0, totsec)
+    totsec = 5*60 # 300
+    delta_sec = np.linspace(0, totsec, n)
     kde = tweet_cache._kdes['media'][url]
     scores = [float(s) for s in kde.link_predict(delta_sec)]
     t=[now - dt.timedelta(seconds=d) for d in delta_sec]

@@ -6,6 +6,7 @@ try:
 except:
     import json
 import numpy as np
+import threading
     
 #For exponential kde, scale=500 seems to work ok (this is just under 10 minutes, which I believe gives about an 18 minute halflife)
 from kde import NegGammaKDELinked, NegExponentialKDELinked, NegExpDecayKDELinked
@@ -38,6 +39,7 @@ class TweetCache(object):
         #self._unq_users['urls']  = defaultdict(set)
         #self._unq_users['media'] = defaultdict(set)
         self._kdes = {'urls':{}, 'media':{}} # kernel density estimators that will be linked to DateDeque timestamps
+        self.lock = threading.RLock()
     @property
     def urls(self):
         return self._counters['urls']
@@ -46,46 +48,51 @@ class TweetCache(object):
         return self._counters['media']
     @property
     def url_users(self):
-        #return Counter( ( k, len(set(v)) ) for k,v in self._cache['urls'])
-        cnt = Counter()
-        for k,v in self._cache['urls'].iteritems():
-            cnt[k] = len(set(entry[1] for entry in v))
-        return cnt
+        with self.lock:
+            #return Counter( ( k, len(set(v)) ) for k,v in self._cache['urls'])
+            cnt = Counter()
+            for k,v in self._cache['urls'].iteritems():
+                cnt[k] = len(set(entry[1] for entry in v))
+            return cnt
     @property
     def media_users(self):
-        #return Counter( ( k, len(set(v)) ) for k,v in self._cache['media'])
-        cnt = Counter()
-        for k,v in self._cache['media'].iteritems():
-            cnt[k] = len(set(entry[1] for entry in v))
-        return cnt
+        with self.lock:
+            #return Counter( ( k, len(set(v)) ) for k,v in self._cache['media'])
+            cnt = Counter()
+            for k,v in self._cache['media'].iteritems():
+                cnt[k] = len(set(entry[1] for entry in v))
+            return cnt
     @property
     def url_scores(self):
-        #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
-        return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['urls'].iteritems() ))
+        with self.lock:
+            #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
+            return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['urls'].iteritems() ))
     @property
     def media_scores(self):
-        #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
-        return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['media'].iteritems() ))
+        with self.lock:
+            #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
+            return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['media'].iteritems() ))
     def _internal_update(self, item, dict_type, user_id, data):
-        url = item['expanded_url']
-        # ignore any urls that are links to a landing page i.e. don't look like 
-        # they link to a file or article.
-        if urlparse(url).path in('','/'):
-            return
-        if not self._stored and hasattr(self, 'datastore'):
-            if self.datastore:
-                self.datastore.insert(data)
-        
-        #self._cache[dict_type][url].append(True)
-        self._cache[dict_type][url].append(user_id)
-        self._counters[dict_type][url] = len(self._cache[dict_type][url])
-        if not self._kdes[dict_type].has_key(url): 
-            #estimator = NegExponentialKDELinked(scale=1/50.)
-            estimator = NegExpDecayKDELinked(halflife=300)
-            estimator.link_container(self._cache[dict_type][url].TTL)
-            self._kdes[dict_type][url] = estimator
-        self._refresh_all()
-        #self.publish()
+        with self.lock:
+            url = item['expanded_url']
+            # ignore any urls that are links to a landing page i.e. don't look like 
+            # they link to a file or article.
+            if urlparse(url).path in('','/'):
+                return
+            if not self._stored and hasattr(self, 'datastore'):
+                if self.datastore:
+                    self.datastore.insert(data)
+            
+            #self._cache[dict_type][url].append(True)
+            self._cache[dict_type][url].append(user_id)
+            self._counters[dict_type][url] = len(self._cache[dict_type][url])
+            if not self._kdes[dict_type].has_key(url): 
+                #estimator = NegExponentialKDELinked(scale=1/50.)
+                estimator = NegExpDecayKDELinked(halflife=300)
+                estimator.link_container(self._cache[dict_type][url].TTL)
+                self._kdes[dict_type][url] = estimator
+            self._refresh_all()
+            #self.publish()
     def _refresh_all(self):
         for dict_type, cache in self._cache.iteritems():
             for k, v in cache.iteritems():
