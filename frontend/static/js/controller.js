@@ -164,12 +164,15 @@ function write_table_d3() {
         
     var cells = rows.selectAll("td")
         .data(function(row) {
-            return [row.rank, row.values[0].score, row.url];
+            return [
+            {column:'rank', value:row.rank}, 
+            {column:'score', value:row.values[0].score}, 
+            {column:'url', value:row.url}];
             })
         .enter()
         .append("td")
         .attr('class', 'foobar2')
         //.attr("style", "font-family: Courier")
-        .text(function(d) { return d; })
+        .text(function(d) { return d.value; })
             ;
 };
