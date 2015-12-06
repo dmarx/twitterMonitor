@@ -6,7 +6,9 @@ from __future__ import division
 import numpy as np
 import scipy.stats as stats
 
-def exp_decay(t, x0=1, decay_const=None, expected_lifetime=None, halflife=None):
+g=stats.gamma(a=10,scale=.5)
+
+def exp_decay1(t, x0=1, decay_const=None, expected_lifetime=None, halflife=None):
     """
     A simple exponential decay function. One (and only one) of decay_const, 
     expected_lifetime, or halflife must be set to a positive value.
@@ -24,8 +26,12 @@ def exp_decay(t, x0=1, decay_const=None, expected_lifetime=None, halflife=None):
     else:
         outv[t<0] = 0
     return outv
+    
+# smoothed version
+def exp_decay(t, x0=1, decay_const=None, expected_lifetime=None, halflife=None):
+        return g.cdf(t) * exp_decay1(t, x0, decay_const, expected_lifetime, halflife)
 
-
+    
 class KDE1d(object):
     def __init__(self, kernel=stats.norm.pdf, bw=1, normalized=True, **kargs):
         """
