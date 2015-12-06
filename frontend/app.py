@@ -88,7 +88,7 @@ def get_data():
     data = []
     for i, item in enumerate(items):
         datum = process_item(item, now, n)
-        datum['rank'] = i
+        datum['rank'] = i + 1
         data.append(datum)
     #except Exception, e:
     #    raise e
