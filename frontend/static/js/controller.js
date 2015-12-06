@@ -25,7 +25,7 @@
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([-1, 100])
+        .domain([0, 100])
         .range([height, 0]);
 
     var line = d3.svg.line()
@@ -112,6 +112,13 @@
       path
           .attr("d", line)
       */
+      
+      // rescale the y-axis
+    var ymax = d3.max(data, function(d) { 
+        return d3.max(d.values, function(d){ return d.score; }); 
+        });
+    y.domain([0, ymax]);
+      
      var path = svg.selectAll(".scoreline");
      path.remove();
      var path = svg.selectAll(".scoreline")
