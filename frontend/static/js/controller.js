@@ -129,7 +129,8 @@
       //data.shift();
     console.log('end tick');
     
-    write_table();
+    //write_table();
+    write_table_d3()
     };
     
 //tick();
@@ -150,3 +151,25 @@ function write_table(){
     }
 };
 
+function write_table_d3() {
+    d3.selectAll("tbody#url-table>tr").remove();
+    //var rows = d3.selectAll("tbody#url-table>tr")
+    var tbody = d3.select('tbody');
+    var rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr")
+        .attr('class', 'foobar')
+        ;
+        
+    var cells = rows.selectAll("td")
+        .data(function(row) {
+            return [row.rank, row.values[0].score, row.url];
+            })
+        .enter()
+        .append("td")
+        .attr('class', 'foobar2')
+        //.attr("style", "font-family: Courier")
+        .text(function(d) { return d; })
+            ;
+};
