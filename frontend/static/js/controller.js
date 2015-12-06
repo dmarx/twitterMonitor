@@ -53,7 +53,7 @@
         .attr("transform", "translate(0," + y(0) + ")")
         .call(d3.svg.axis().scale(x).orient("bottom"));
 
-    svg.append("g")
+    var yAxis = svg.append("g")
         .attr("class", "y axis")
         .call(d3.svg.axis().scale(y).orient("left"));
 
@@ -118,6 +118,7 @@
         return d3.max(d.values, function(d){ return d.score; }); 
         });
     y.domain([0, ymax]);
+    yAxis.call(d3.svg.axis().scale(y).orient("left"));
       
      var path = svg.selectAll(".scoreline");
      path.remove();
