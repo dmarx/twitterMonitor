@@ -1,5 +1,6 @@
     
     var n = 1000; // number of data points to draw
+    var max_delta = 300;
     var m = 5; // number of lines to draw (i.e. number of items to report on)
     var temp=[]; // array that will be used as an intermediary to pass the ajax response into the global scope
     var data=[]; // this is what the line data will ultimately be bound to.
@@ -20,7 +21,7 @@
         height = 500 - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
-        .domain([0, n - 1])
+        .domain([0, max_delta])
         .range([0, width]);
 
     var y = d3.scale.linear()
@@ -32,7 +33,7 @@
         .x(function(d, i) { return x(i); })
         .y(function(d, i) { return y(d); });
         */
-        .x(function(d, i) { return x(d.i); })
+        .x(function(d, i) { return x(d.delta); })
         .y(function(d, i) { return y(d.score); });
 
     var svg = d3.select("body").append("svg")
