@@ -173,6 +173,13 @@ function write_table_d3() {
         .append("td")
         .attr('class', 'foobar2')
         //.attr("style", "font-family: Courier")
-        .text(function(d) { return d.value; })
-            ;
+        //.text(function(d) { return d.value; })
+        .html(function(d) { 
+            if(d.column == 'url'){
+                return '<a href="' +d.value+ '">' +d.value+ '</a>'
+            } else {
+                return d.value;
+            }
+        })
+        ;
 };
