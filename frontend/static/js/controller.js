@@ -117,7 +117,7 @@
     var ymax = d3.max(data, function(d) { 
         return d3.max(d.values, function(d){ return d.score; }); 
         });
-    y.domain([0, ymax]);
+    y.domain([0, ymax+1]);
     yAxis.call(d3.svg.axis().scale(y).orient("left"));
       
      var path = svg.selectAll(".scoreline");
