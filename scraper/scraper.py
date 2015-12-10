@@ -1,7 +1,7 @@
 from __future__ import division
-from connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
+from connect import APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
 from utilities import store_tweets, handle_rate_limiting
-from twython import TwythonStreamer
+from tweepy import StreamListener
 from requests.exceptions import ChunkedEncodingError
 from cache import TweetCache
 
@@ -17,8 +17,9 @@ tweet_cache = TweetCache(minutes=60)
 N=0
 M=0
 
-class MyStreamer(TwythonStreamer):
-    def on_success(self, data):
+class MyStreamer(StreamListener):
+    #def on_success(self, data):
+    def on_status(self, data):
         self.backoff = 1
         if 'text' not in data: # more general. handles all notices 
             return
