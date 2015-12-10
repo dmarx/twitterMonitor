@@ -24,15 +24,13 @@ update_interval = 60
 tweet = None
 tweet_cache = TweetCache(minutes=60)
 
-#tweet_cache=[]
 N=0
 M=0
 
 class MyStreamer(StreamListener):
-    #def on_success(self, data):
     def on_status(self, data):
         self.backoff = 1
-        if 'text' not in data: # more general. handles all notices 
+        if 'text' not in data:
             return
         global tweet_cache
         global tweet
@@ -77,17 +75,14 @@ class MyStreamer(StreamListener):
                 
             start = time.time()
             
-            #raise Exception("FOOBAARRRR!!!")
-            
     def on_error(self, status_code, data):
         if not hasattr(self, 'backoff'):
             self.backoff = 1
         print "[ON ERROR]", status_code
         if status_code == 420:
-            #raise Exception
             print "Sleeping", self.backoff
             time.sleep(self.backoff)
-            self.backoff *= 2 # Exponential backoff
+            self.backoff *= 2
             if self.backoff > 15*60: # Don't sleep longer than 15 minutes
                 self.backoff = 15*60
             
@@ -95,10 +90,10 @@ if __name__ == "__main__":
     from collections import Counter
     exception_catcher = Counter()
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    #tweet_cache.register_datastore(tweets)
-    import redis
-    r = redis.StrictRedis()
-    tweet_cache.register_pubsub(r, 'tweet_monitor')
+    
+    #import redis
+    #r = redis.StrictRedis()
+    #tweet_cache.register_pubsub(r, 'tweet_monitor')
     while True:
         try:
             stream.statuses.filter(track=
