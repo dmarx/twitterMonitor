@@ -1,7 +1,7 @@
     
     var n = 1000; // number of data points to draw
     var max_delta = 300;
-    var m = 5; // number of lines to draw (i.e. number of items to report on)
+    var m = 20;//5; // number of lines to draw (i.e. number of items to report on)
     var temp=[]; // array that will be used as an intermediary to pass the ajax response into the global scope
     var data=[]; // this is what the line data will ultimately be bound to.
     for(i=0;i<m;i++){
