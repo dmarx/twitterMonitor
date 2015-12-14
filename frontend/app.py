@@ -20,14 +20,21 @@ from scraper.connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, O
 import threading
 import datetime as dt
 import numpy as np
+import tweepy
 
-stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+#stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+auth = tweepy.OAuthHandler(APP_KEY, APP_SECRET)
+auth.set_access_token(OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+api = tweepy.API(auth)
+Listener = MyStreamer()
+stream = tweepy.Stream(auth=api.auth, listener=Listener)
 
 def monitor_stream():
     global stream
     while True:
-        try:
-            stream.statuses.filter(track=
+        #try:
+            stream.filter(track=
+            #stream.statuses.filter(track=
                 ['terrorist','terrorists','attack','attacked','attacks','killed',
                 'hostage','hostages','explosion','bomb','bomber','gunman',
                 'gunmen','breaking','war','dead','injured','emergency', 
@@ -35,10 +42,11 @@ def monitor_stream():
                 'shooting','gunfire','arrested','alleged','suspect','suspects',
                 'suspected','assassinate','assassinated'])
             #stream.statuses.sample()
-        except ChunkedEncodingError, e:
-            print "[APP ERROR]", e
-        except Exception, e:
-            print "[APP ERROR]", e # for some reason this breaks the app. 
+        #except ChunkedEncodingError, e:
+        #    print "[APP ERROR]", e
+        #except Exception, e:
+            #print "[APP ERROR]", e # for some reason this breaks the app. 
+        #    raise e
 
 # Start the data monitor
 

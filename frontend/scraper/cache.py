@@ -101,18 +101,19 @@ class TweetCache(object):
                     self._counters[dict_type].pop(k)
                     self._kdes[dict_type].pop(k)
     def update(self, data):
-        if any(k in data['entities'].keys() for k in ('urls', 'media')):
+        #if any(k in data['entities'].keys() for k in ('urls', 'media')):
+        if any(k in data.entities.keys() for k in ('urls', 'media')):
             self._stored = False
-            user_id = data['user']['id_str']
-            if data['entities'].has_key('urls'):
-                for item in data['entities']['urls']:
+            user_id = data.user.id_str
+            if data.entities.has_key('urls'):
+                for item in data.entities['urls']:
                     self._internal_update(item, 'urls', user_id, data)
                     # url = item['expanded_url']
                     # self._cache['urls'][url].append(True)
                     # self.urls[url] = len(self._cache['urls'][url])
                     # if self.urls[url]
-            if data['entities'].has_key('media'):
-                for item in data['entities']['media']:
+            if data.entities.has_key('media'):
+                for item in data.entities['media']:
                     self._internal_update(item, 'media', user_id, data)
                     # url = item['expanded_url']
                     # self._cache['media'][url].append(True)

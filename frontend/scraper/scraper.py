@@ -79,7 +79,7 @@ class MyStreamer(StreamListener):
             
             #raise Exception("FOOBAARRRR!!!")
             
-    def on_error(self, status_code, data):
+    def on_error(self, status_code):
         if not hasattr(self, 'backoff'):
             self.backoff = 1
         print "[ON ERROR]", status_code
@@ -94,14 +94,20 @@ class MyStreamer(StreamListener):
 if __name__ == "__main__":
     from collections import Counter
     exception_catcher = Counter()
-    stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    auth = tweepy.OAuthHandler(APP_KEY, APP_SECRET)
+    auth.set_access_token(OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    api = tweepy.API(auth)
+    Listener = MyStreamer()
+    stream = tweepy.Stream(auth=api.auth, listener=Listener())
+    #stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     #tweet_cache.register_datastore(tweets)
-    import redis
-    r = redis.StrictRedis()
-    tweet_cache.register_pubsub(r, 'tweet_monitor')
+    #import redis
+    #r = redis.StrictRedis()
+    #tweet_cache.register_pubsub(r, 'tweet_monitor')
     while True:
         try:
-            stream.statuses.filter(track=
+            stream.filter(track=
+            #stream.statuses.filter(track=
                 ['terrorist','terrorists','attack','attacked','attacks','killed',
                 'hostage','hostages','explosion','bomb','bomber','gunman',
                 'gunmen','breaking','war','dead','injured','emergency', 
