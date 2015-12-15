@@ -65,6 +65,10 @@ class TweetCache(object):
     def media_scores(self):
         with self.lock:
             return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['media'].iteritems() ))
+    def track_terms(self, terms):
+        self._terms = set(terms)
+        self._url_terms = {'urls': defaultdict(set), 
+                           'media':defaultdict(set)}
     def _internal_update(self, item, dict_type, user_id, data):
         with self.lock:
             url = item['expanded_url']
@@ -82,6 +86,16 @@ class TweetCache(object):
                 estimator = NegExpDecayKDELinked(halflife=300)
                 estimator.link_container(self._cache[dict_type][url].TTL)
                 self._kdes[dict_type][url] = estimator
+                
+            #### Update tracking terms
+            if hasattr(self, '_url_terms'):
+                associated_terms = self._url_terms[dict_type][url]
+                test_terms = self._terms - associated_terms
+                new_terms = [t for t in test_terms if t in data['text']]
+                if new_terms:
+                    self._url_terms[dict_type][url].update(new_terms)
+                    print self._url_terms[dict_type][url], url
+                
             self._refresh_all()
             #self.publish()
     def _refresh_all(self):
@@ -91,6 +105,7 @@ class TweetCache(object):
                 if self._counters[dict_type][k] == 0:
                     self._counters[dict_type].pop(k)
                     self._kdes[dict_type].pop(k)
+                    self._url_terms[dict_type].pop(k)
     def update(self, data):
         if any(k in data['entities'].keys() for k in ('urls', 'media')):
             self._stored = False

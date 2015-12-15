@@ -23,12 +23,7 @@ import numpy as np
 
 stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
-def monitor_stream():
-    global stream
-    while True:
-        try:
-            stream.statuses.filter(track=
-                ['terrorist','terrorists','attack','attacked','attacks',
+tracking_terms = ['terrorist','terrorists','attack','attacked','attacks',
                 #'killed',
                 'hostage','hostages','explosion','bomb','bomber','gunman',
                 'gunmen','breaking','war',
@@ -36,8 +31,14 @@ def monitor_stream():
                 'injured','emergency', 
                 'casualties','kidnapped','mob','protest','protesters',
                 'shooting','gunfire','arrested','alleged','suspect','suspects',
-                'suspected','assassinate','assassinated'])
-            #stream.statuses.sample()
+                'suspected','assassinate','assassinated']
+tweet_cache.track_terms(tracking_terms)
+
+def monitor_stream():
+    global stream
+    while True:
+        try:
+            stream.statuses.filter(track=tracking_terms)
         except ChunkedEncodingError, e:
             print "[APP ERROR]", e
         except Exception, e:
