@@ -7,7 +7,7 @@ from pymongo import Connection
 from twython import Twython, TwythonRateLimitError
 
 config = ConfigParser.ConfigParser()
-config.read('../config/connection.cfg')
+config.read('config/connection.cfg')
 
 # spin up twitter api
 APP_KEY    = config.get('credentials','app_key')

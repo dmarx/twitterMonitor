@@ -93,9 +93,11 @@ if __name__ == "__main__":
                 ['terrorist','terrorists','attack','attacked','attacks','killed',
                 'hostage','hostages','explosion','bomb','bomber','gunman',
                 'gunmen','breaking','war','dead','injured','emergency', 
-                'casualties','kidnapped','mob','protest','protesters',
+                'casualties','kidnapped','mob','protest','protesters','shooter',
+                'shooters',
                 'shooting','gunfire','arrested','alleged','suspect','suspects',
-                'suspected','assassinate','assassinated'])
+                'suspected','assassinate','assassinated'
+                ])
             #stream.statuses.sample()
         except ChunkedEncodingError, e:
             exception_catcher[e] +=1
