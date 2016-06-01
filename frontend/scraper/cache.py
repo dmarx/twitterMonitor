@@ -25,21 +25,18 @@ class TweetCache(object):
         """
         def subcache():
             return DateDeque(**kargs)
-        self._cache = {}
-        # Containers for events
-        self._cache['urls']  = defaultdict(subcache)
-        self._cache['media'] = defaultdict(subcache)
-        # Counters for containers
-        #self.urls   = Counter()
-        #self.media = Counter()
-        self._counters = {}
-        self._counters['urls'] = Counter()
-        self._counters['media'] = Counter()
-        #self._unq_users
-        #self._unq_users['urls']  = defaultdict(set)
-        #self._unq_users['media'] = defaultdict(set)
-        self._kdes = {'urls':{}, 'media':{}} # kernel density estimators that will be linked to DateDeque timestamps
         self.lock = threading.RLock()
+        
+        # Containers for events
+        self._cache = {'urls':defaultdict(subcache), 
+                       'media':defaultdict(subcache)}
+
+        # Containers for counters
+        self._counters = {'urls':Counter(), 'media':Counter()}
+
+        # kernel density estimators that will be linked to DateDeque timestamps
+        self._kdes = {'urls':{}, 'media':{}} 
+        
     @property
     def urls(self):
         return self._counters['urls']
@@ -49,7 +46,6 @@ class TweetCache(object):
     @property
     def url_users(self):
         with self.lock:
-            #return Counter( ( k, len(set(v)) ) for k,v in self._cache['urls'])
             cnt = Counter()
             for k,v in self._cache['urls'].iteritems():
                 cnt[k] = len(set(entry[1] for entry in v))
@@ -57,7 +53,6 @@ class TweetCache(object):
     @property
     def media_users(self):
         with self.lock:
-            #return Counter( ( k, len(set(v)) ) for k,v in self._cache['media'])
             cnt = Counter()
             for k,v in self._cache['media'].iteritems():
                 cnt[k] = len(set(entry[1] for entry in v))
@@ -65,13 +60,15 @@ class TweetCache(object):
     @property
     def url_scores(self):
         with self.lock:
-            #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['urls'].iteritems() ))
             return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['urls'].iteritems() ))
     @property
     def media_scores(self):
         with self.lock:
-            #return Counter(dict( (k, np.log(v.link_predict()[0])) for k,v in self._kdes['media'].iteritems() ))
             return Counter(dict( (k, v.link_predict()[0]) for k,v in self._kdes['media'].iteritems() ))
+    def track_terms(self, terms):
+        self._terms = set(terms)
+        self._url_terms = {'urls': defaultdict(set), 
+                           'media':defaultdict(set)}
     def _internal_update(self, item, dict_type, user_id, data):
         with self.lock:
             url = item['expanded_url']
@@ -83,14 +80,22 @@ class TweetCache(object):
                 if self.datastore:
                     self.datastore.insert(data)
             
-            #self._cache[dict_type][url].append(True)
             self._cache[dict_type][url].append(user_id)
             self._counters[dict_type][url] = len(self._cache[dict_type][url])
             if not self._kdes[dict_type].has_key(url): 
-                #estimator = NegExponentialKDELinked(scale=1/50.)
                 estimator = NegExpDecayKDELinked(halflife=300)
                 estimator.link_container(self._cache[dict_type][url].TTL)
                 self._kdes[dict_type][url] = estimator
+                
+            #### Update tracking terms
+            if hasattr(self, '_url_terms'):
+                associated_terms = self._url_terms[dict_type][url]
+                test_terms = self._terms - associated_terms
+                new_terms = [t for t in test_terms if t in data['text']]
+                if new_terms:
+                    self._url_terms[dict_type][url].update(new_terms)
+                    print self._url_terms[dict_type][url], url
+                
             self._refresh_all()
             #self.publish()
     def _refresh_all(self):
@@ -100,6 +105,7 @@ class TweetCache(object):
                 if self._counters[dict_type][k] == 0:
                     self._counters[dict_type].pop(k)
                     self._kdes[dict_type].pop(k)
+                    self._url_terms[dict_type].pop(k)
     def update(self, data):
         if any(k in data['entities'].keys() for k in ('urls', 'media')):
             self._stored = False
@@ -107,16 +113,9 @@ class TweetCache(object):
             if data['entities'].has_key('urls'):
                 for item in data['entities']['urls']:
                     self._internal_update(item, 'urls', user_id, data)
-                    # url = item['expanded_url']
-                    # self._cache['urls'][url].append(True)
-                    # self.urls[url] = len(self._cache['urls'][url])
-                    # if self.urls[url]
             if data['entities'].has_key('media'):
                 for item in data['entities']['media']:
                     self._internal_update(item, 'media', user_id, data)
-                    # url = item['expanded_url']
-                    # self._cache['media'][url].append(True)
-                    # self.media[url] = len(self._cache['media'][url])
     def register_datastore(self, datastore):
         """
         Datastore must have an "insert" method and accept arbitrary tweet 
@@ -159,7 +158,6 @@ class TweetCache(object):
                     # being transmitted.
                     if msg != self._last_msg:
                         self._last_msg = msg
-                        #self.publish(msg)
                         self._pubsub.publish(self._pubsub_channel, msg)
         self.publish = publish
     @property
@@ -175,18 +173,12 @@ class TweetCache(object):
                     for i, url_cnt in enumerate(self.urls.most_common(10))],
                 'top_by_users':[{'url':url_cnt[0], 'rank':i+1, 'score':int(1000*url_cnt[1]/total_urls)}
                     for i, url_cnt in enumerate(self.url_users.most_common(10))]
-                #'unique':len(self.urls),
-                #'n_users':len(self.url_users)
             },
             'media':{
-                #'top_by_count':[url for url, _ in self.media.most_common(10)],
-                #'top_by_users':[url for url, _ in self.media_users.most_common(10)],
                 'top_by_count':[{'url':url_cnt[0], 'rank':i+1, 'score':int(10000*url_cnt[1]/total_media)} 
                     for i, url_cnt in enumerate(self.media.most_common(10))],
                 'top_by_users':[{'url':url_cnt[0], 'rank':i+1, 'score':int(10000*url_cnt[1]/total_media)} 
                     for i, url_cnt in enumerate(self.media_users.most_common(10))]
-                #'unique':len(self.media),
-                #'n_users':len(self.media_users)
             }
         }
         return json.dumps(msg)
