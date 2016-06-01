@@ -29,7 +29,8 @@ tracking_terms = ['terrorist','terrorists','attack','attacked','attacks',
                 'gunmen','breaking','war',
                 #'dead',
                 'injured','emergency', 
-                'casualties','kidnapped','mob','protest','protesters',
+                'casualties','kidnapped','mob','protest','protesters','shooter',
+                'shooters',
                 'shooting','gunfire','arrested','alleged','suspect','suspects',
                 'suspected','assassinate','assassinated']
 tweet_cache.track_terms(tracking_terms)
