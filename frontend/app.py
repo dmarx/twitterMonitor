@@ -53,7 +53,7 @@ app = flask.Flask(__name__)
 app.secret_key = 'asdf'
 
 
-def process_item(item, item_type='urls', now, n=1000, totsec = 5*60):
+def process_item(item, item_type, now, n=1000, totsec = 5*60):
     """Process an entry from a cache Counter object"""
     #print item
     url, score = item
