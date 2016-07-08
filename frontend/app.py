@@ -21,6 +21,25 @@ import threading
 import datetime as dt
 import numpy as np
 
+# For article titles. This probably belongs somewhere else
+import requests
+from bs4 import BeautifulSoup
+
+title_cache = {}
+def get_title(url, cache=title_cache):
+    if url in cache:
+        return cache[url]
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text)
+    try:
+        title = soup.title.text
+    except:
+        title = url
+    cache[url] = title
+    print ("[TITLE]", title)
+    print ('[TITLE CACHE LENGTH]', len(cache))
+    return title
+
 stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
 tracking_terms = ['terrorist','terrorists','attack','attacked','attacks',
@@ -66,9 +85,11 @@ def process_item(item, item_type, now, n=1000, totsec = 5*60):
     scores = [float(s) for s in kde.link_predict(delta_sec)] # Instead of calculating all these scores, I really only need the most recent score, as long as they're calculated at regular intervals.
     t=[now - dt.timedelta(seconds=d) for d in delta_sec]
     t_epoch = [(t0 - dt.datetime(year=1970, month=1, day=1)).total_seconds() for t0 in t]
-    datum = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
+    #datum = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 'url':url, 'score':scores}
+    datum = {'time':t_epoch, 'delta':[float(d) for d in delta_sec], 
+             'url':url, 'title':get_title(url), 'score':scores}
     # We actually want the transpose of this.
-    datum2 = {'url':datum['url']}
+    datum2 = {'url':datum['url'], 'title':datum['title']}
     values = []
     for i in range(n):
         rec = {'time': datum['time'][i],

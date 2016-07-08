@@ -134,35 +134,13 @@
         .style("stroke", function(d) { return color(d.rank); })
         ;
 
-      // pop the old data point off the front
-      //data.shift();
     console.log('end tick');
     
-    //write_table();
     write_table_d3()
     };
-    
-//tick();
-//setInterval('tick()', 100); // tick every tenth of a second.
-//setInterval('tick()', 30000); // tick every tenth of a second.
-
-function write_table(){
-    var out = document.getElementById('out');
-    out.innerHTML = ''; // truncate existing text
-    out.innerHTML = out.innerHTML + "\n\n[MEDIA]\n";
-    console.log('~~~~~'+data.length);
-    for(i=0;i<data.length;i++){
-        var insert_text = data[i].rank +"\t|\t"+ 
-                         data[i].values[0].score +"\t|\t"+ 
-                         '<a href="' + data[i].url + '">' + data[i].url +"</a>"+ '\n';
-        console.log(insert_text);
-        out.innerHTML =  out.innerHTML + insert_text;
-    }
-};
-
+  
 function write_table_d3() {
     d3.selectAll("tbody#url-table>tr").remove();
-    //var rows = d3.selectAll("tbody#url-table>tr")
     var tbody = d3.select('tbody');
     var rows = tbody.selectAll("tr")
         .data(data)
@@ -176,16 +154,15 @@ function write_table_d3() {
             return [
             {column:'rank', value:row.rank}, 
             {column:'score', value:row.values[0].score}, 
-            {column:'url', value:row.url}];
+            {column:'url', url:row.url, title:row.title}
+            ];
             })
         .enter()
         .append("td")
         .attr('class', 'foobar2')
-        //.attr("style", "font-family: Courier")
-        //.text(function(d) { return d.value; })
         .html(function(d) { 
             if(d.column == 'url'){
-                return '<a href="' +d.value+ '">' +d.value+ '</a>'
+                return '<a href="' +d.url+ '">' +d.title+ '</a>'
             } else {
                 return d.value;
             }
