@@ -53,7 +53,7 @@ app = flask.Flask(__name__)
 app.secret_key = 'asdf'
 
 
-def process_item(item, now, n=1000, totsec = 5*60):
+def process_item(item, item_type='urls', now, n=1000, totsec = 5*60):
     """Process an entry from a cache Counter object"""
     #print item
     url, score = item
@@ -61,7 +61,8 @@ def process_item(item, now, n=1000, totsec = 5*60):
     # these in from the POST request. Anyway, need to pass values into the appropriate KDE
     # to retrieve associated scores.
     delta_sec = np.linspace(0, totsec, n)
-    kde = tweet_cache._kdes['media'][url]
+    #kde = tweet_cache._kdes['media'][url]
+    kde = tweet_cache._kdes[item_type][url]
     scores = [float(s) for s in kde.link_predict(delta_sec)] # Instead of calculating all these scores, I really only need the most recent score, as long as they're calculated at regular intervals.
     t=[now - dt.timedelta(seconds=d) for d in delta_sec]
     t_epoch = [(t0 - dt.datetime(year=1970, month=1, day=1)).total_seconds() for t0 in t]
@@ -86,12 +87,13 @@ def get_data():
     n_trackers = flask.request.args.get('n_trackers', 4, type=int) 
     #try:
     #item = tweet_cache.media_scores.most_common(1)[0]
-    items = tweet_cache.media_scores.most_common(n_trackers)
+    #items = tweet_cache.media_scores.most_common(n_trackers)
+    items = tweet_cache.url_scores.most_common(n_trackers)
     now = DateDeque.timestamp()
     #data = [process_item(item, now, n) for item in items]
     data = []
     for i, item in enumerate(items):
-        datum = process_item(item, now, n)
+        datum = process_item(item, 'urls', now, n)
         datum['rank'] = i + 1
         data.append(datum)
     #except Exception, e:
