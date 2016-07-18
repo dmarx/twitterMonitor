@@ -109,6 +109,8 @@ class DbApi(object):
                 
 
     def update_scores(self, c):
+        self.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
+        
         sql_update_current_scores = """
         UPDATE entities
         SET current_score = (
@@ -122,7 +124,7 @@ class DbApi(object):
         """
         
         sql_update_max_scores = """
-        UPDATE entities e
+        UPDATE entities
         SET max_score = current_score
         WHERE current_score > max_score
         """
