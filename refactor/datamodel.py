@@ -4,7 +4,7 @@ import ConfigParser
 import time
 from contextlib import closing
 import numpy as np
-from kde import NegExpDecayKDE
+from kde import exp_decay
 
 config = ConfigParser.ConfigParser()
 config.read('connection.cfg')
@@ -23,6 +23,7 @@ class DbApi(object):
         except:
             with open('schema.sql', 'r') as f:
                 c.executescript(f.read())
+            db.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
         c.close()
         
     def persist(self, data):
@@ -41,6 +42,8 @@ class DbApi(object):
             self.persist_entities(c, data, vals, 'urls')
             self.persist_entities(c, data, vals, 'media')
             self.persist_terms(c, vals)
+            
+            self.update_scores(c)
             
             self.conn.commit()
         #c.close()
@@ -104,39 +107,61 @@ class DbApi(object):
                     entity_id = c.lastrowid
                 c.execute(sql_entity_tweet_xref, [tweet_id, entity_id])
                 
-    def update_url_score(self, c, url, new=True):
-        if new:
-            score = 1
-        else:
-            sql_get_times = """
-            SELECT t.created_at
-            FROM tweets t, 
-                 entities e,
-                 tweet_entities xref
-            WHERE e.url = ?
-            AND   xref.entity_id = e.id
-            AND   xref.tweet_id  = t.id
-            """            
-            times = c.execute(sql_get_times, [url]).fetchall()
-            times = np.array(times)
+
+    def update_scores(self, c):
+        sql_update_current_scores = """
+        UPDATE entities
+        SET current_score = (
+            SELECT sum(decay(? - created_at))
+            FROM tweets t,
+                 tweet_entities x
+            WHERE x.entity_id = entities.id
+            AND   x.tweet_id = t.id
+            GROUP BY entity_id
+        )
+        """
+        
+        sql_update_max_scores = """
+        UPDATE entities e
+        SET max_score = current_score
+        WHERE current_score > max_score
+        """
+        
+        c.execute(sql_update_current_scores, [time.time()])
+        c.execute(sql_update_max_scores)
+        
+    # def update_url_score(self, c, url, new=True):
+        # if new:
+            # score = 1
+        # else:
+            # sql_get_times = """
+            # SELECT t.created_at
+            # FROM tweets t, 
+                 # entities e,
+                 # tweet_entities xref
+            # WHERE e.url = ?
+            # AND   xref.entity_id = e.id
+            # AND   xref.tweet_id  = t.id
+            # """            
+            # times = c.execute(sql_get_times, [url]).fetchall()
+            # times = np.array(times)
             
-            kde=NegExpDecayKDE(halflife=300)
-            kde.fit(times)
-            score = kde.predict(0)
+            # kde=NegExpDecayKDE(halflife=300)
+            # kde.fit(times)
+            # score = kde.predict(0)
         
-        sql_get_max_score = """
-        SELECT max_score FROM entities WHERE url = ?
-        """
+        # sql_get_max_score = """
+        # SELECT max_score FROM entities WHERE url = ?
+        # """
         
-        sql_update_score = """
-        UPDATE entities SET 
-            current_score = ?,
-            max_score = ?
-        WHERE url = ?
-        """
-        max_score = c.execute(sql_get_max_score, [url]).fetchall()[0][0]
-        if max_score < score:
-            max_score = score
-        c.execute(sql_update_score, [score, max_score, url])
-        
+        # sql_update_score = """
+        # UPDATE entities SET 
+            # current_score = ?,
+            # max_score = ?
+        # WHERE url = ?
+        # """
+        # max_score = c.execute(sql_get_max_score, [url]).fetchall()[0][0]
+        # if max_score < score:
+            # max_score = score
+        # c.execute(sql_update_score, [score, max_score, url])
         
