@@ -19,9 +19,9 @@
     <tbody id="url-table">
     {% for rec in result %}
         <tr>
-        {{loop.index}} 
-        {{rec.score}}
-        {{rec.url}}
+        <td>{{loop.index}}</td>
+        <td>{{rec.score}}</td>
+        <td>{{rec.url}}</td>
         </tr>
     {% endfor %}
     </tbody>

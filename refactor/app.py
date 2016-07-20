@@ -95,7 +95,8 @@ def get_data():
     data= get_top(n=10, kind='urls')
     for row in data:
         print row
-    return flask.jsonify(result=data)
+    #return flask.jsonify(result=data)
+    return flask.render_template('get_data.html', result=data)
     
 @app.route('/')
 def index():
