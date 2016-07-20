@@ -3,42 +3,32 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
 </head>
 <body>
-<table>
-    <thead>
-        <tr>
-            <th>Rank</th>
-            <th>Score</th>
-            <th>Title</th>
-        </tr>
-    </thead>
-    <tbody id="url-table">
-    {% for rec in result %}
-        <tr>
-        {{loop.index}} 
-        {{rec.score}}
-        {{rec.url}}
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+
+    <div id="url-table">
+    </div>
+
 <pre id="out"></pre>
 
 
-<!--
-<script src="{{  url_for('static', filename='js/controller.js')  }}"></script>
 <script>
-    $( document ).ready(function() {
-        console.log('first tick');
-        //tick();
-        console.log('end first tick');
-        setInterval('tick()', 100); // tick every tenth of a second.
-        //setInterval('tick()', 30000); // tick every tenth of a second.
-        console.log('interval set');
+// This endpoint passes a rendereed template (i.e. HTML) instead of JSON.
+// A little more data moving around than if the response was just JSON, but the 
+// resulting code is a lot neater.
+function update_table() {
+    $.post("/get_data", {}, function(response) {
+        var myDiv = $('#url-table');
+        myDiv.html(response);
     });
+};
+
+$( document ).ready(function() {
+    setInterval('update_table()', 3000); // tick every three seconds.
+});
 </script>
--->

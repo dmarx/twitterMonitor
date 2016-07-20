@@ -88,15 +88,10 @@ def get_top(n, kind='urls'):
     top = g.sqlite_db.execute('select url, current_score from entities where type=? order by current_score desc limit ?', [kind, n]).fetchall()
     return [{'url':rec[0], 'score':rec[1], 'title':get_title(rec[0])} for rec in top]
 
-@app.route('/get_data')
+@app.route('/get_data', methods=['GET','POST'])
 def get_data():
-    #n=1000
-    #n_trackers = flask.request.args.get('n_trackers', 4, type=int) 
     data= get_top(n=10, kind='urls')
-    for row in data:
-        print row
-    #return flask.jsonify(result=data)
-    return flask.render_template('get_data.html', result=data)
+    return flask.render_template('url_table.html', result=data)
     
 @app.route('/')
 def index():

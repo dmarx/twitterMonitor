@@ -53,5 +53,5 @@ if __name__ == "__main__":
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
             db.conn.close()
-            #raise e
+            raise e
         #"""
