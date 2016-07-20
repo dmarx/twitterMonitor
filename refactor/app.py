@@ -41,7 +41,7 @@ def get_title(url, cache=title_cache):
     response = requests.get(url)
     soup = BeautifulSoup(response.text)
     try:
-        title = soup.title.text
+        title = soup.title.text.strip()
     except:
         title = url
     cache[url] = title

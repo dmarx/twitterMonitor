@@ -25,6 +25,8 @@ class DbApi(object):
                 c.executescript(f.read())
             self.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
         c.close()
+        self.last_flushed = 0
+        self.flush_interval = 300 # clear out old data every five minutes
         
     def persist(self, data):
         vals = {}
@@ -44,8 +46,11 @@ class DbApi(object):
             self.persist_terms(c, vals)
             
             self.update_scores(c)
-            
             self.conn.commit()
+            
+            self.flush_old_data(c)
+            self.conn.commit()
+            
         #c.close()
         
     def register_tweet(self, c, vals):
@@ -121,6 +126,8 @@ class DbApi(object):
             AND   x.tweet_id = t.id
             GROUP BY entity_id
         )
+        WHERE current_score > 1
+        OR ?-last_occurence < 60 -- ignore items we haven't seen in the last minute.
         """
         
         sql_update_max_scores = """
@@ -129,8 +136,50 @@ class DbApi(object):
         WHERE current_score > max_score
         """
         
-        c.execute(sql_update_current_scores, [time.time()])
+        now = time.time()
+        c.execute(sql_update_current_scores, [now])
         c.execute(sql_update_max_scores)
+        
+    def flush_old_data(self, c):
+        now = time.time()
+        if now - self.last_flushed < self.flush_interval:
+            return
+        
+        sql_delete_old_tweets = """
+        DELETE FROM tweets t
+        WHERE ?-t.created_at > 3600
+        """
+        
+        sql_delete_orphan_rel_terms = """
+        DELETE FROM tweet_terms tt
+        WHERE NOT EXISTS (
+            SELECT 1 FROM tweets t
+            WHERE t.id = tt.tweet_id
+        )
+        """
+        
+        sql_delete_orphan_rel_entities = """
+        DELETE FROM tweet_entities
+        WHERE NOT EXISTS (
+            SELECT 1 FROM tweets t
+            WHERE t.id = te.tweet_id
+        )
+        """
+        
+        sql_delete_orphan_entities = """
+        DELETE FROM entities e
+        WHERE NOT EXISTS (
+            SELECT 1 FROM tweet_entities te
+            WHERE e.id = te.entity_id
+        )
+        """
+        
+        c.execute(sql_delete_old_tweets, [now])
+        c.execute(sql_delete_orphan_rel_terms)
+        c.execute(sql_delete_orphan_rel_entities)
+        c.execute(sql_delete_orphan_entities)
+        
+        self.last_flushed = now
         
     # def update_url_score(self, c, url, new=True):
         # if new:
