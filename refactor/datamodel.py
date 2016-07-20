@@ -41,11 +41,15 @@ class DbApi(object):
         vals['orig_tweet_id'] = data['id']
         
         with closing(self.conn.cursor()) as c:
-            
-            vals['tweet_id'] = self.register_tweet(c, vals)
-            self.persist_entities(c, data, vals, 'urls')
-            self.persist_entities(c, data, vals, 'media')
-            self.persist_terms(c, vals)
+            try:
+                vals['tweet_id'] = self.register_tweet(c, vals)
+                self.persist_entities(c, data, vals, 'urls')
+                self.persist_entities(c, data, vals, 'media')
+                self.persist_terms(c, vals)
+            except sqlite3.IntegrityError, e:
+                print e
+                self.conn.rollback()
+                return
             
             self.update_scores(c)
             self.conn.commit()
@@ -133,7 +137,7 @@ class DbApi(object):
             GROUP BY entity_id
         )
         WHERE current_score > 1
-        OR ?-last_occurence < 60 -- ignore items we haven't seen in the last minute.
+        OR ?-last_occurrence < 60 -- ignore items we haven't seen in the last minute.
         """
         
         sql_update_max_scores = """
@@ -142,7 +146,7 @@ class DbApi(object):
         WHERE current_score > max_score
         """
         
-        c.execute(sql_update_current_scores, [now])
+        c.execute(sql_update_current_scores, [now, now])
         c.execute(sql_update_max_scores)
         
         self.last_scored = now
@@ -153,15 +157,15 @@ class DbApi(object):
             return
         
         sql_delete_old_tweets = """
-        DELETE FROM tweets t
-        WHERE ?-t.created_at > 3600
+        DELETE FROM tweets
+        WHERE ?-created_at > 3600
         """
         
         sql_delete_orphan_rel_terms = """
-        DELETE FROM tweet_terms tt
+        DELETE FROM tweet_terms
         WHERE NOT EXISTS (
             SELECT 1 FROM tweets t
-            WHERE t.id = tt.tweet_id
+            WHERE t.id = tweet_terms.tweet_id
         )
         """
         
@@ -169,15 +173,15 @@ class DbApi(object):
         DELETE FROM tweet_entities
         WHERE NOT EXISTS (
             SELECT 1 FROM tweets t
-            WHERE t.id = te.tweet_id
+            WHERE t.id = tweet_entities.tweet_id
         )
         """
         
         sql_delete_orphan_entities = """
-        DELETE FROM entities e
+        DELETE FROM entities
         WHERE NOT EXISTS (
             SELECT 1 FROM tweet_entities te
-            WHERE e.id = te.entity_id
+            WHERE entities.id = te.entity_id
         )
         """
         
