@@ -21,7 +21,7 @@
         <tr>
         <td>{{loop.index}}</td>
         <td>{{rec.score}}</td>
-        <td>{{rec.url}}</td>
+        <td><a href="{{rec.url}}">{{rec.title}}</a></td>
         </tr>
     {% endfor %}
     </tbody>
