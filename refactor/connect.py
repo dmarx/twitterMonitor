@@ -3,7 +3,7 @@ Spin up a connection to the twitter API and local database
 """
 
 import ConfigParser
-from pymongo import Connection
+#from pymongo import Connection
 from twython import Twython, TwythonRateLimitError
 
 config = ConfigParser.ConfigParser()

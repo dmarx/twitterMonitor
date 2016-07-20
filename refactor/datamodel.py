@@ -23,7 +23,7 @@ class DbApi(object):
         except:
             with open('schema.sql', 'r') as f:
                 c.executescript(f.read())
-            db.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
+            self.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
         c.close()
         
     def persist(self, data):

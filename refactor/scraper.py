@@ -42,8 +42,8 @@ if __name__ == "__main__":
     terms = load_terms()
 
     while True:
-        stream.statuses.filter(track=terms)
-        """
+        #stream.statuses.filter(track=terms)
+        #"""
         try:
             stream.statuses.filter(track=terms)
         except ChunkedEncodingError, e:
@@ -54,4 +54,4 @@ if __name__ == "__main__":
             print "[SCRAPER ERROR]", e, exception_catcher[e]
             db.conn.close()
             #raise e
-        """
+        #"""
