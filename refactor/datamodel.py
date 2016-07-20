@@ -27,6 +27,8 @@ class DbApi(object):
         c.close()
         self.last_flushed = 0
         self.flush_interval = 300 # clear out old data every five minutes
+        self.last_scored = 0
+        self.score_interval = 1
         
     def persist(self, data):
         vals = {}
@@ -114,6 +116,10 @@ class DbApi(object):
                 
 
     def update_scores(self, c):
+        now = time.time()
+        if now - self.last_scored < self.score_interval:
+            return
+        
         self.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
         
         sql_update_current_scores = """
@@ -136,9 +142,10 @@ class DbApi(object):
         WHERE current_score > max_score
         """
         
-        now = time.time()
         c.execute(sql_update_current_scores, [now])
         c.execute(sql_update_max_scores)
+        
+        self.last_scored = now
         
     def flush_old_data(self, c):
         now = time.time()
