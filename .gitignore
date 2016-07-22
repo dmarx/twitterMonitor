@@ -1,2 +1,5 @@
 *cfg
 *pyc
+no_track/**
+*.pem
+*.ppk
