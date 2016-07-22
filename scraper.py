@@ -17,10 +17,10 @@ class MyStreamer(TwythonStreamer):
             return
         if any(k in data['entities'].keys() for k in ('urls', 'media')):
             db.persist(data)
-            try:
-                print data['text']
-            except:
-                print "unicode issue"
+            #try:
+            #    print data['text']
+            #except:
+            #    print "unicode issue"
     def on_error(self, status_code, data):
         if not hasattr(self, 'backoff'):
             self.backoff = 1
