@@ -25,32 +25,29 @@ import numpy as np
 import sqlite3
 import ConfigParser
 from urlparse import urlparse
+import requests
+from bs4 import BeautifulSoup
+from load_terms import load_terms
 
 config = ConfigParser.ConfigParser()
 config.read('connection.cfg')
 DB_NAME = config.get('database','name')
 
-# For article titles. This probably belongs somewhere else
-import requests
-from bs4 import BeautifulSoup
-from load_terms import load_terms
+terms = load_terms()
 
-title_cache = {} # I should save these to the database
-def get_title(url, cache=title_cache):
-    if url in cache:
-        return cache[url]
+def post_process_url(url):
+    """
+    Gets the title element from a url
+    """
     response = requests.get(url)
+    orig_url = response.url
     soup = BeautifulSoup(response.text)
     try:
         title = soup.title.text.strip()
     except:
         title = url
-    cache[url] = title
     print ("[TITLE]", title)
-    print ('[TITLE CACHE LENGTH]', len(cache))
-    return title
-
-terms = load_terms()
+    return orig_url, title    
 
 #def monitor_stream():
 #    stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
@@ -86,8 +83,22 @@ def close_db(error):
         g.sqlite_db.close()
 
 def get_top(min_score, n, kind='urls'):
-    top = g.sqlite_db.execute('select url, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
-    return [{'url':rec[0], 'domain':urlparse(rec[0]).netloc, 'score':rec[1], 'title':get_title(rec[0])} for rec in top]
+    top = g.sqlite_db.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
+    ix={d:i for i, d in enumerate(['id', 'url', 'orig_url', 'title', 'current_score'])}
+    records = []
+    for rec in top:
+        rec = list(rec)
+        if not rec[ix['orig_url']]:
+            orig_url, title = post_process_url(rec[ix['url']])
+            if not title:
+                title = orig_url
+            par = [orig_url, title, int(rec[ix['id']])]
+            g.sqlite_db.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
+            g.sqlite_db.commit()
+            rec[ix['orig_url']] = orig_url
+            rec[ix['title']] = title
+        records.append(rec)
+    return [{'url':rec[ix['orig_url']], 'domain':urlparse(rec[ix['orig_url']]).netloc, 'score':rec[ix['current_score']], 'title':rec[ix['title']]} for rec in records]
 
 @app.route('/get_data', methods=['GET','POST'])
 def get_data():

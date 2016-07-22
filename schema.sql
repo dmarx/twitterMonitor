@@ -9,6 +9,8 @@ CREATE TABLE entities
     (id               INTEGER PRIMARY KEY AUTOINCREMENT,
      type             TEXT, -- one of 'url' or 'media'
      url              TEXT UNIQUE, -- what if a particular URL gets used as both a URL and MEDIA? Use which ever shows first?
+     orig_url         TEXT, -- un-minimized url
+     title            TEXT,
      first_occurrence INTEGER, -- epoch date
      last_occurrence  INTEGER, -- epoch date
      current_score    NUMBER,
