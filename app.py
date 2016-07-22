@@ -18,7 +18,6 @@ import time
 #from scraper.scraper import MyStreamer, tweet_cache # the cache should really be attached to the class instead of a separate object
 #from scraper.datedeque import DateDeque
 #from scraper.connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
-import threading
 import datetime as dt
 import numpy as np
 #from scraper import MyStreamer
@@ -50,21 +49,6 @@ def post_process_url(url):
         title = url
     print ("[TITLE]", title)
     return orig_url, title    
-
-#def monitor_stream():
-#    stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-#    while True:
-#        try:
-#            stream.statuses.filter(track=terms)
-#        except ChunkedEncodingError, e:
-#            print "[APP ERROR]", e
-#        except Exception, e:
-#            print "[APP ERROR]", e # for some reason this breaks the app. 
-
-# Start the data monitor
-
-#t = threading.Thread(target=monitor_stream)
-#t.start()
 
 app = flask.Flask(__name__)
 app.secret_key = 'asdf'
