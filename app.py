@@ -24,6 +24,7 @@ import numpy as np
 #from scraper import MyStreamer
 import sqlite3
 import ConfigParser
+from urlparse import urlparse
 
 config = ConfigParser.ConfigParser()
 config.read('connection.cfg')
@@ -86,7 +87,7 @@ def close_db(error):
 
 def get_top(n, kind='urls'):
     top = g.sqlite_db.execute('select url, current_score from entities where type=? order by current_score desc limit ?', [kind, n]).fetchall()
-    return [{'url':rec[0], 'score':rec[1], 'title':get_title(rec[0])} for rec in top]
+    return [{'url':rec[0], 'domain':urlparse(rec[0]).netloc, 'score':rec[1], 'title':get_title(rec[0])} for rec in top]
 
 @app.route('/get_data', methods=['GET','POST'])
 def get_data():

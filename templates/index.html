@@ -19,6 +19,7 @@
     <thead>
         <tr>
             <th>Rank</th>
+            <th>Domain</th>
             <th>Score</th>
             <th>Title</th>
         </tr>
@@ -68,6 +69,7 @@ function rebuild_table() {
         .data(function(row, i) {
             return [
             {column:'rank', value:i+1},
+            {column:'domain', value:row.domain},
             {column:'score', value:row.score.toFixed(2)}, //round to 2 decimal places
             {column:'url', url:row.url, title:row.title}
             ];
