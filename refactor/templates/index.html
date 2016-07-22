@@ -5,30 +5,85 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js"></script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
 </head>
 <body>
 
-    <div id="url-table">
+    <div id="url-table2">
     </div>
 
+<table>
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Score</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody id="url-table"></tbody>
+</table>
+    
 <pre id="out"></pre>
 
 
 <script>
-// This endpoint passes a rendereed template (i.e. HTML) instead of JSON.
-// A little more data moving around than if the response was just JSON, but the 
-// resulting code is a lot neater.
-function update_table() {
-    $.post("/get_data", {}, function(response) {
-        var myDiv = $('#url-table');
-        myDiv.html(response);
-    });
+
+var data=[];
+
+function tick() {
+    update_data();
+    rebuild_table();
 };
 
 $( document ).ready(function() {
-    setInterval('update_table()', 1000); // tick every second.
+    setInterval('tick()', 1000); // tick every second.
 });
+
+function update_data() {
+        $.getJSON($SCRIPT_ROOT + '/get_data', {})
+            .success(
+                  function(newdata) {
+                    data.length=0;
+                    for(i=0; i<newdata.result.length; i++){
+                        data[i] = newdata.result[i];
+                    };
+                    }
+                  );
+        };
+
+function rebuild_table() {
+    d3.selectAll("tbody#url-table>tr").remove();
+    var tbody = d3.select('tbody');
+    var rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr")
+        .attr('class', 'foobar')
+        ;
+    
+    var cells = rows.selectAll("td")
+        .data(function(row, i) {
+            return [
+            {column:'rank', value:i+1},
+            {column:'score', value:row.score.toFixed(2)}, //round to 2 decimal places
+            {column:'url', url:row.url, title:row.title}
+            ];
+            })
+        .enter()
+        .append("td")
+        .attr('class', 'foobar2')
+        .html(function(d) { 
+            if(d.column == 'url'){
+                return '<a href="' +d.url+ '">' +d.title+ '</a>'
+            } else {
+                return d.value;
+            }
+        })
+        ;
+    
+    };
+        
 </script>

@@ -91,7 +91,8 @@ def get_top(n, kind='urls'):
 @app.route('/get_data', methods=['GET','POST'])
 def get_data():
     data= get_top(n=10, kind='urls')
-    return flask.render_template('url_table.html', result=data)
+    #return flask.render_template('url_table.html', result=data)
+    return flask.jsonify(result=data)
     
 @app.route('/')
 def index():
