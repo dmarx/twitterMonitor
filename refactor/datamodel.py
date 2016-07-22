@@ -5,6 +5,7 @@ import time
 from contextlib import closing
 import numpy as np
 from kde import exp_decay
+from urlparse import urlparse
 
 config = ConfigParser.ConfigParser()
 config.read('connection.cfg')
@@ -104,6 +105,8 @@ class DbApi(object):
             for url1 in data['entities'][kind]:
                 #print "url1", url1
                 url = url1['expanded_url']
+                if urlparse(url).netloc.lower() == 'twitter.com':
+                    url = url.lower() # standardize twitter urls.
                 print "url", url
                 test = c.execute(sql_entity_id, [url]).fetchall()
                 if len(test) > 0:
