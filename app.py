@@ -42,7 +42,7 @@ def post_process_url(url):
     """
     response = requests.get(url)
     orig_url = response.url
-    soup = BeautifulSoup(response.text)
+    soup = BeautifulSoup(response.text, "html.parser")
     try:
         title = soup.title.text.strip()
     except:
