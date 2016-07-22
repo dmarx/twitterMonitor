@@ -5,9 +5,11 @@ Spin up a connection to the twitter API and local database
 import ConfigParser
 #from pymongo import Connection
 from twython import Twython, TwythonRateLimitError
+import os
+here = os.path.dirname(__file__)
 
 config = ConfigParser.ConfigParser()
-config.read('connection.cfg')
+config.read(os.path.join(here, 'connection.cfg'))
 
 # spin up twitter api
 APP_KEY    = config.get('credentials','app_key')

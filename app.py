@@ -27,10 +27,12 @@ from urlparse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from load_terms import load_terms
+import os
+here = os.path.dirname(__file__)
 
 config = ConfigParser.ConfigParser()
-config.read('connection.cfg')
-DB_NAME = config.get('database','name')
+config.read(os.path.join(here, 'connection.cfg'))
+DB_NAME = os.path.join(here, config.get('database','name'))
 
 terms = load_terms()
 

@@ -1,8 +1,10 @@
 import ConfigParser
+import os
+here = os.path.dirname(__file__)
 
 config = ConfigParser.ConfigParser()
-config.read('connection.cfg')
-fpath = config.get('terms','location')
+config.read(os.path.join(here, 'connection.cfg'))
+fpath = os.path.join(here,config.get('terms','location'))
 
 def load_terms():
     terms = []

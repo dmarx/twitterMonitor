@@ -6,10 +6,12 @@ from contextlib import closing
 import numpy as np
 from kde import exp_decay
 from urlparse import urlparse
+import os
+here = os.path.dirname(__file__)
 
 config = ConfigParser.ConfigParser()
-config.read('connection.cfg')
-DB_NAME = config.get('database','name')
+config.read(os.path.join(here, 'connection.cfg'))
+DB_NAME = os.path.join(here, config.get('database','name'))
 
 tracked_terms = load_terms()
 
@@ -22,7 +24,7 @@ class DbApi(object):
         try:
             c.execute('SELECT 1 FROM ENTITIES')
         except:
-            with open('schema.sql', 'r') as f:
+            with open(os.path.join(here,'schema.sql'), 'r') as f:
                 c.executescript(f.read())
             self.conn.create_function("decay", 1, lambda x: exp_decay(x, halflife=300))
         c.close()
