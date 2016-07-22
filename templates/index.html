@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="//d3js.org/d3.v3.min.js"></script>
@@ -12,11 +13,8 @@
 </head>
 <body>
 
-    <div id="url-table2">
-    </div>
-
-<table>
-    <thead>
+<table class="table table-striped">
+    <thead class="thead-default">
         <tr>
             <th>Rank</th>
             <th>Domain</th>
@@ -26,8 +24,6 @@
     </thead>
     <tbody id="url-table"></tbody>
 </table>
-    
-<pre id="out"></pre>
 
 
 <script>

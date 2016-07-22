@@ -85,13 +85,13 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
-def get_top(n, kind='urls'):
-    top = g.sqlite_db.execute('select url, current_score from entities where type=? order by current_score desc limit ?', [kind, n]).fetchall()
+def get_top(min_score, n, kind='urls'):
+    top = g.sqlite_db.execute('select url, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
     return [{'url':rec[0], 'domain':urlparse(rec[0]).netloc, 'score':rec[1], 'title':get_title(rec[0])} for rec in top]
 
 @app.route('/get_data', methods=['GET','POST'])
 def get_data():
-    data= get_top(n=10, kind='urls')
+    data= get_top(min_score=1, n=20, kind='urls')
     #return flask.render_template('url_table.html', result=data)
     return flask.jsonify(result=data)
     
