@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="http://codegena.com/assets/css/image-preview-for-link.css" rel="stylesheet"> <!-- for preview ...hopefully-->
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="//d3js.org/d3.v3.min.js"></script>
@@ -38,10 +39,12 @@ function tick() {
     rebuild_table();
 };
 
+tick()
+/*
 $( document ).ready(function() {
-    setInterval('tick()', 1000); // tick every second.
+    setInterval('tick()', 10000); // tick every second.
 });
-
+*/
 function update_data() {
         $.getJSON($SCRIPT_ROOT + '/get_data', {})
             .success(
@@ -69,7 +72,7 @@ function rebuild_table() {
             return [
             {column:'rank', value:i+1},
             {column:'score', value:row.score.toFixed(2)}, //round to 2 decimal places
-            {column:'url', url:row.url, title:row.title}
+            {column:'url', url:row.url, title:row.title, i:i}
             ];
             })
         .enter()
@@ -77,13 +80,28 @@ function rebuild_table() {
         .attr('class', 'foobar2')
         .html(function(d) { 
             if(d.column == 'url'){
-                return '<a href="' +d.url+ '">' +d.title+ '</a>'
+                return '<a id="link'+d.i+'" href="' +d.url+ '">' +d.title+ '</a>';
             } else {
                 return d.value;
             }
         })
         ;
     
+    <!-- http://stackoverflow.com/a/31994029/819544 -->
+    $(function() {
+                $('#link0').miniPreview({ prefetch: 'parenthover' });
+                $('#link1').miniPreview({ prefetch: 'parenthover' });
+                $('#link2').miniPreview({ prefetch: 'parenthover' });
+                $('#link3').miniPreview({ prefetch: 'parenthover' });
+                $('#link4').miniPreview({ prefetch: 'parenthover' });
+                $('#link5').miniPreview({ prefetch: 'parenthover' });
+                $('#link6').miniPreview({ prefetch: 'parenthover' });
+                $('#link7').miniPreview({ prefetch: 'parenthover' });
+                $('#link8').miniPreview({ prefetch: 'parenthover' });
+                $('#link9').miniPreview({ prefetch: 'parenthover' });
+            });
+    
     };
         
 </script>
+<script src="http://codegena.com/assets/js/image-preview-for-link.js"></script>
