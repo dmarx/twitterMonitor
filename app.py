@@ -35,6 +35,8 @@ DB_NAME = config.get('database','name')
 
 terms = load_terms()
 
+RECORDS_CACHE = (None, 0)
+
 def post_process_url(url):
     """
     Gets the title element from a url
@@ -83,21 +85,28 @@ def close_db(error):
         g.sqlite_db.close()
 
 def get_top(min_score, n, kind='urls'):
-    top = g.sqlite_db.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
     ix={d:i for i, d in enumerate(['id', 'url', 'orig_url', 'title', 'current_score'])}
-    records = []
-    for rec in top:
-        rec = list(rec)
-        if not rec[ix['orig_url']]:
-            orig_url, title = post_process_url(rec[ix['url']])
-            if not title:
-                title = orig_url
-            par = [orig_url, title, int(rec[ix['id']])]
-            g.sqlite_db.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
-            g.sqlite_db.commit()
-            rec[ix['orig_url']] = orig_url
-            rec[ix['title']] = title
-        records.append(rec)
+    global RECORDS_CACHE
+    cached_rec, cached_time = RECORDS_CACHE
+    now = time.time()
+    if now - cached_time < 1:
+        records = cached_rec
+    else:
+        top = g.sqlite_db.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
+        records = []
+        for rec in top:
+            rec = list(rec)
+            if not rec[ix['orig_url']]:
+                orig_url, title = post_process_url(rec[ix['url']])
+                if not title:
+                    title = orig_url
+                par = [orig_url, title, int(rec[ix['id']])]
+                g.sqlite_db.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
+                g.sqlite_db.commit()
+                rec[ix['orig_url']] = orig_url
+                rec[ix['title']] = title
+            records.append(rec)
+        RECORDS_CACHE = (records, now)
     return [{'url':rec[ix['orig_url']], 'domain':urlparse(rec[ix['orig_url']]).netloc, 'score':rec[ix['current_score']], 'title':rec[ix['title']]} for rec in records]
 
 @app.route('/get_data', methods=['GET','POST'])
