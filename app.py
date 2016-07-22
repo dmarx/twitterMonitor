@@ -87,7 +87,8 @@ def get_top(min_score, n, kind='urls'):
                 if not title:
                     title = orig_url
                 par = [orig_url, title, int(rec[ix['id']])]
-                g.sqlite_db.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
+                c = g.sqlite_db.cursor()
+                c.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
                 g.sqlite_db.commit()
                 rec[ix['orig_url']] = orig_url
                 rec[ix['title']] = title
