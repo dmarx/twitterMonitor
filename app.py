@@ -13,7 +13,7 @@
 
 import flask
 from flask import g
-from requests.exceptions import ChunkedEncodingError
+from requests.exceptions import ChunkedEncodingError, SSLError
 import time
 #from scraper.scraper import MyStreamer, tweet_cache # the cache should really be attached to the class instead of a separate object
 #from scraper.datedeque import DateDeque
@@ -83,7 +83,10 @@ def get_top(min_score, n, kind='urls'):
         for rec in top:
             rec = list(rec)
             if not rec[ix['orig_url']]:
-                orig_url, title = post_process_url(rec[ix['url']])
+                try:
+                    orig_url, title = post_process_url(rec[ix['url']])
+                except SSLError:
+                    orig_url, title = rec[ix['url']], rec[ix['url']]
                 if not title:
                     title = orig_url
                 par = [orig_url, title, int(rec[ix['id']])]
