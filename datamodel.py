@@ -109,7 +109,11 @@ class DbApi(object):
                 url = url1['expanded_url']
                 if urlparse(url).netloc.lower() == 'twitter.com':
                     url = url.lower() # standardize twitter urls.
-                print "url", url
+                print "url", url.encode('utf-8')
+                #try:
+                #    print "url", url
+                #except UnicodeEncodeError:
+                #    print "[Error] UnicodeEncodeError"
                 test = c.execute(sql_entity_id, [url]).fetchall()
                 if len(test) > 0:
                     #print "WE'RE IN!"
