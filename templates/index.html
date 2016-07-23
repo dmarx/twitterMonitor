@@ -77,7 +77,7 @@ function rebuild_table() {
             if(d.column == 'url'){
                 return '<a href="' +d.url+ '">' +d.title+ '</a>'
             } else if(d.column == 'domain'){
-                return '<img src="http://' + d.value + '/favicon.ico" style="width:30px;height:30px;">  '+ d.value
+                return '<img src="http://' + d.value + '/favicon.ico" style="width:30px;height:30px;" onerror="this.style.display=\'none\'">  '+ d.value
             } else {
                 return d.value;
             }
