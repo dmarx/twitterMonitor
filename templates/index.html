@@ -68,7 +68,7 @@ function rebuild_table() {
             {column:'rank', value:i+1},
             {column:'domain', value:row.domain},
             {column:'score', value:row.score.toFixed(2)}, //round to 2 decimal places
-            {column:'url', url:row.url, title:row.title}
+            {column:'url', url:row.url, title:row.title, terms:row.terms}
             ];
             })
         .enter()
@@ -76,7 +76,7 @@ function rebuild_table() {
         .attr('class', 'foobar2')
         .html(function(d) { 
             if(d.column == 'url'){
-                return '<a href="' +d.url+ '">' +d.title+ '</a>'
+                return '<a title="Relevant terms: ' +d.terms+ '" href="' +d.url+ '">' +d.title+ '</a>'
             } else if(d.column == 'domain'){
                 return '<img src="http://' + d.value + '/favicon.ico" style="width:30px;height:30px;" onerror="this.style.display=\'none\'">  '+ d.value
             } else {

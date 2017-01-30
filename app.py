@@ -94,9 +94,29 @@ def get_top(min_score, n, kind='urls'):
                 g.sqlite_db.commit()
                 rec[ix['orig_url']] = orig_url
                 rec[ix['title']] = title
+                
+            entity_id = rec[ix['id']]
+            terms = g.sqlite_db.execute(
+                """select tt.term, count(*)
+                from tweet_terms    tt,
+                     tweet_entities te
+                where 1=1
+                and  ? = te.entity_id
+                and  tt.tweet_id = te.tweet_id
+                group by tt.term
+                order by 2 desc""", [entity_id]).fetchall()
+            tjoin_1 = [a for a,b in terms ]
+            terms_str = ', '.join(tjoin_1)
+            rec.append(terms_str)
             records.append(rec)
         RECORDS_CACHE = (records, now)
-    return [{'url':rec[ix['orig_url']], 'domain':urlparse(rec[ix['orig_url']]).netloc, 'score':rec[ix['current_score']], 'title':rec[ix['title']]} for rec in records]
+    return [{'url':rec[ix['orig_url']], 
+             'domain':urlparse(rec[ix['orig_url']]).netloc, 
+             'score':rec[ix['current_score']], 
+             'title':rec[ix['title']], 
+             'terms':rec[-1]
+             } 
+             for rec in records]
 
 @app.route('/get_data', methods=['GET','POST'])
 def get_data():

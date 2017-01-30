@@ -6,6 +6,7 @@ from contextlib import closing
 import numpy as np
 from kde import exp_decay
 from urlparse import urlparse
+import string
 import os
 here = os.path.dirname(__file__)
 
@@ -32,12 +33,22 @@ class DbApi(object):
         self.flush_interval = 300 # clear out old data every five minutes
         self.last_scored = 0
         self.score_interval = 1
+        self.data = None
         
     def persist(self, data):
+        self.data = data
         vals = {}
         vals['user_id'] = data['user']['id_str']
         text    = data['text']
+        if 'retweeted_status' in data:
+            text += " " + data['retweeted_status']['text']
+        #if data['is_quote_status']:
+        if 'quoted_status' in data:
+            text += " " + data['quoted_status']['text']
         text.replace('#','')
+        exclude = set(string.punctuation)
+        ### Instead of deleting punctuation, let's replace with spaces to protect possessives/contractions/etc
+        text = ''.join(ch if ch not in exclude else ' ' for ch in text) 
         tokens = text.lower().split(' ')
         vals['terms'] = [t for t in tracked_terms if t in tokens]
         vals['created_at'] =  time.time() #data['created_at']

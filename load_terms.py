@@ -10,5 +10,5 @@ def load_terms():
     terms = []
     with open(fpath, 'r') as f:
         for term in f:
-            terms.append(term)
+            terms.append(term.strip())
     return terms

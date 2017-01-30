@@ -50,10 +50,10 @@ if __name__ == "__main__":
         except ChunkedEncodingError, e:
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
-        except Exception, e:        
-            exception_catcher[e] +=1
-            print "[SCRAPER ERROR]", e, exception_catcher[e]
-            db.conn.close()
-            raise e
+        #except Exception, e:        
+        #    exception_catcher[e] +=1
+        #    print "[SCRAPER ERROR]", e, exception_catcher[e]
+        #    db.conn.close()
+        #    raise e
         
         #"""
