@@ -38,14 +38,15 @@ if __name__ == "__main__":
     
     exception_catcher = Counter()
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-
+    
     terms = load_terms()
-
+    
     while True:
         #stream.statuses.filter(track=terms)
         #"""
         try:
             stream.statuses.filter(track=terms)
+            #stream.statuses.filter(track=['hillary', 'trump', 'election'])
         except ChunkedEncodingError, e:
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
@@ -54,4 +55,5 @@ if __name__ == "__main__":
             print "[SCRAPER ERROR]", e, exception_catcher[e]
             db.conn.close()
             raise e
+        
         #"""

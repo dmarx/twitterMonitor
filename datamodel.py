@@ -107,6 +107,8 @@ class DbApi(object):
             for url1 in data['entities'][kind]:
                 #print "url1", url1
                 url = url1['expanded_url']
+                if not url:
+                    continue
                 if urlparse(url).netloc.lower() == 'twitter.com':
                     url = url.lower() # standardize twitter urls.
                 print "url", url.encode('utf-8')

@@ -34,3 +34,4 @@ assassinate
 assassinated
 coup
 military
+trump
