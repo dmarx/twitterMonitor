@@ -23,7 +23,7 @@ def post_process_url(url):
         title = soup.title.text.strip()
     except:
         title = url
-    print (str(datetime.now()) + " [TITLE] " + title)
+    print (str(datetime.now()) + " [TITLE] " + title.encode('utf-8'))
     return orig_url, title   
     
 def get_titles(conn, 
