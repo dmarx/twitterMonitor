@@ -57,14 +57,14 @@ def close_db(error):
         g.sqlite_db.close()
 
 def get_top(min_score, n, kind='urls'):
-    ix={d:i for i, d in enumerate(['id', 'url', 'orig_url', 'title', 'current_score'])}
+    ix={d:i for i, d in enumerate(['id', 'url', 'orig_url', 'title', 'current_score', 'first_occurrence', 'last_occurrence'])}
     global RECORDS_CACHE
     cached_rec, cached_time = RECORDS_CACHE
     now = time.time()
     if (now - cached_time) < int(config.get('refresh','frontend')) and cached_rec is not None:
         records = cached_rec
     else:
-        top = g.sqlite_db.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
+        top = g.sqlite_db.execute('select id, url, orig_url, title, current_score, first_occurrence, last_occurrence from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
         records = []
         for rec in top:
             rec = list(rec)
@@ -90,6 +90,8 @@ def get_top(min_score, n, kind='urls'):
              'domain':urlparse(rec[ix['orig_url']]).netloc, 
              'score':rec[ix['current_score']], 
              'title':rec[ix['title']], 
+             'first_occurrence':rec[ix['first_occurrence']],
+             'last_occurrence':rec[ix['last_occurrence']],
              'terms':rec[-1]
              } 
              for rec in records]

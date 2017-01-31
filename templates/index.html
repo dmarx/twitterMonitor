@@ -21,6 +21,8 @@
             <th></th> <!--favicon-->
             <th scope="col">Domain</th>
             <th scope="col">Score</th>
+            <th scope="col">First tweet</th>
+        <!--<th scope="col">Last tweet</th> -->
             <th scope="col">Title</th>
         </tr>
     </thead>
@@ -71,6 +73,8 @@ function rebuild_table() {
             {column:'favicon', value:'<img src="http://' + row.domain + '/favicon.ico" style="width:30px;height:30px;" onerror="this.style.display=\'none\'">'},
             {column:'domain', value:row.domain},
             {column:'score', value:row.score.toFixed(2)}, //round to 2 decimal places
+            {column:'first_occurrence', value:row.first_occurrence},
+            //{column:'last_occurrence', value:row.last_occurrence}, // Just not particularly interesting.
             {column:'url', url:row.url, title:row.title, terms:row.terms}
             ];
             })
@@ -82,6 +86,13 @@ function rebuild_table() {
                 return '<a title="Relevant terms: ' +d.terms+ '" href="' +d.url+ '">' +d.title+ '</a>'
             } else if(d.column == 'domain'){
                 return d.value
+            } else if(d.column == 'first_occurrence' | d.column == 'last_occurrence'){
+                var date_obj = new Date(0);
+                date_obj.setUTCSeconds(d.value);
+                var hrs = date_obj.getHours(), mins = date_obj.getMinutes()+'';
+                mins = mins.length == 2 ? mins : '0'+mins;
+                return hrs + ':' + mins ;
+                //return date_obj.getHours();
             } else {
                 return d.value;
             }
