@@ -14,19 +14,18 @@
 </head>
 <body>
 
-<table class="table table-striped table-sm">
+<table class="table table-striped table-sm table-responsive">
     <thead class="thead-default">
         <tr>
-            <th>Rank</th>
+            <th scope="col">Rank</th>
             <th></th> <!--favicon-->
-            <th>Domain</th>
-            <th>Score</th>
-            <th>Title</th>
+            <th scope="col">Domain</th>
+            <th scope="col">Score</th>
+            <th scope="col">Title</th>
         </tr>
     </thead>
     <tbody id="url-table"></tbody>
 </table>
-
 
 <script>
 
@@ -92,3 +91,5 @@ function rebuild_table() {
     };
         
 </script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

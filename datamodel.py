@@ -93,7 +93,7 @@ class DbApi(object):
         for term in vals['terms']:
             par = (id, term)
             c.execute(sql, par)
-            print "succcess: persist term"
+            #print "succcess: persist term"
     def persist_entities(self, c, data, vals, kind):    
         sql_entity_id = """
         SELECT id
