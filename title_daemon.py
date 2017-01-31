@@ -3,6 +3,7 @@ import requests
 from requests.exceptions import ChunkedEncodingError, SSLError
 from bs4 import BeautifulSoup
 import time
+from datetime import datetime
 import sqlite3
 import ConfigParser
 import os
@@ -22,7 +23,7 @@ def post_process_url(url):
         title = soup.title.text.strip()
     except:
         title = url
-    print ("[TITLE]", title)
+    print (str(datetime.now()) + " [TITLE] " + title)
     return orig_url, title   
     
 def get_titles(conn, 

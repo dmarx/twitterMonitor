@@ -2,6 +2,7 @@ import sqlite3
 from load_terms import load_terms
 import ConfigParser
 import time
+from datetime import datetime
 from contextlib import closing
 import numpy as np
 from kde import exp_decay
@@ -122,7 +123,7 @@ class DbApi(object):
                     continue
                 if urlparse(url).netloc.lower() == 'twitter.com':
                     url = url.lower() # standardize twitter urls.
-                print "url", url.encode('utf-8')
+                print (str(datetime.now()) + " [URL] " + url.encode('utf-8'))
                 #try:
                 #    print "url", url
                 #except UnicodeEncodeError:
