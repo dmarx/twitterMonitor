@@ -41,7 +41,7 @@ if __name__ == "__main__":
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     
     terms = load_terms()
-    
+    backoff = 1
     while True:
         #stream.statuses.filter(track=terms)
         #"""
