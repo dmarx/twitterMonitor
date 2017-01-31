@@ -3,6 +3,7 @@ from connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOK
 from twython import TwythonStreamer
 from requests.exceptions import ChunkedEncodingError
 import time
+from sqlite3 import OperationalError
 from datamodel import DbApi
 
 db = DbApi()
@@ -47,9 +48,15 @@ if __name__ == "__main__":
         try:
             stream.statuses.filter(track=terms)
             #stream.statuses.filter(track=['hillary', 'trump', 'election'])
+            backoff = 1
         except ChunkedEncodingError, e:
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
+        except OperationalError, e:
+            print "[DB ERROR]", e, exception_catcher[e]
+            print "Sleeping", backoff
+            time.sleep(backoff)
+            backoff*=2
         except Exception, e:        
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
