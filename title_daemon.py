@@ -43,8 +43,17 @@ def get_titles(conn,
             if not title:
                 title = orig_url
             par = [orig_url, title, int(rec[ix['id']])]
-            conn.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
-            conn.commit()
+            backoff = 1
+            while True:
+                try:
+                    conn.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
+                    conn.commit()
+                    break
+                except OperationalError, e:
+                    print "[DB ERROR]", e, exception_catcher[e]
+                    print "Sleeping", backoff
+                    time.sleep(backoff)
+                    backoff*=2
 
 if __name__ == '__main__':
     DB_NAME = os.path.join(here, config.get('database','name'))
