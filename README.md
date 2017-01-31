@@ -9,6 +9,6 @@ To setup an instance:
     
 To run, simply run the following three scripts in parallel:
 
-    * app.py - The flask webapp that serves the front-end
-    * scraper.py - The component that actually monitors twitter for trending items
-    * title_daemon.py - Separate process for pulling down titls from trending URLs
+* app.py - The flask webapp that serves the front-end
+* scraper.py - The component that actually monitors twitter for trending items
+* title_daemon.py - Separate process for pulling down titls from trending URLs
