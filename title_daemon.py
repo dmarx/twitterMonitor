@@ -30,7 +30,16 @@ def get_titles(conn,
                    min_score = int(config.get('app_params','min_score')), 
                    n = int(config.get('app_params','n')), 
                    kind = 'urls'):
-    top = conn.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
+    backoff = .1
+    while True:
+        try:
+            top = conn.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
+            break
+        except OperationalError, e:
+            print "[DB ERROR]", e, exception_catcher[e]
+            print "Sleeping", backoff
+            time.sleep(backoff)
+            backoff*=1.5
     records = []
     ix={d:i for i, d in enumerate(['id', 'url', 'orig_url', 'title', 'current_score'])}
     for rec in top:
@@ -43,7 +52,7 @@ def get_titles(conn,
             if not title:
                 title = orig_url
             par = [orig_url, title, int(rec[ix['id']])]
-            backoff = 1
+            backoff = .1
             while True:
                 try:
                     conn.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
@@ -53,7 +62,7 @@ def get_titles(conn,
                     print "[DB ERROR]", e, exception_catcher[e]
                     print "Sleeping", backoff
                     time.sleep(backoff)
-                    backoff*=2
+                    backoff*=1.5
 
 if __name__ == '__main__':
     DB_NAME = os.path.join(here, config.get('database','name'))

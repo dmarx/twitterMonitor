@@ -41,14 +41,14 @@ if __name__ == "__main__":
     stream = MyStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     
     terms = load_terms()
-    backoff = 1
+    backoff = .1
     while True:
         #stream.statuses.filter(track=terms)
         #"""
         try:
             stream.statuses.filter(track=terms)
             #stream.statuses.filter(track=['hillary', 'trump', 'election'])
-            backoff = 1
+            backoff = .1
         except ChunkedEncodingError, e:
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
@@ -56,7 +56,7 @@ if __name__ == "__main__":
             print "[DB ERROR]", e, exception_catcher[e]
             print "Sleeping", backoff
             time.sleep(backoff)
-            backoff*=2
+            backoff*=1.5
         except Exception, e:        
             exception_catcher[e] +=1
             print "[SCRAPER ERROR]", e, exception_catcher[e]
