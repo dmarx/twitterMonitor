@@ -7,6 +7,7 @@ from datetime import datetime
 import sqlite3
 import ConfigParser
 import os
+from sqlite3 import OperationalError
 
 here = os.path.dirname(__file__)
 config = ConfigParser.ConfigParser()
