@@ -47,10 +47,14 @@ def get_titles(conn,
         if not rec[ix['orig_url']]:
             try:
                 orig_url, title = post_process_url(rec[ix['url']])
-            except SSLError:
-                orig_url, title = rec[ix['url']], rec[ix['url']]
+            except Exception, e:
+                print '[TITLE DAEMON ERROR]', e
+                continue
+            #except SSLError:
+            #    orig_url, title = rec[ix['url']], rec[ix['url']]
             if not title:
-                title = orig_url
+                #title = orig_url
+                continue
             par = [orig_url, title, int(rec[ix['id']])]
             backoff = .1
             while True:
