@@ -37,7 +37,7 @@ def get_titles(conn,
             top = conn.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
             break
         except OperationalError, e:
-            print "[DB ERROR]", e, exception_catcher[e]
+            print "[DB ERROR]", e
             print "Sleeping", backoff
             time.sleep(backoff)
             backoff*=1.5
