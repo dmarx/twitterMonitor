@@ -1,14 +1,17 @@
 """
 Spin up a connection to the twitter API and local database
 """
-
-import ConfigParser
+from __future__ import print_function
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import RawConfigParser as ConfigParser
 #from pymongo import Connection
 from twython import Twython, TwythonRateLimitError
 import os
 here = os.path.dirname(__file__)
 
-config = ConfigParser.ConfigParser()
+config = ConfigParser()
 config.read(os.path.join(here, 'connection.cfg'))
 
 # spin up twitter api
@@ -39,5 +42,5 @@ try:
     db = conn[DBNAME]
     tweets = db[COLLECTION]
 except:
-    print "MongoDB connection refused. Tweets will not be persisted."
+    print("MongoDB connection refused. Tweets will not be persisted.")
     tweets = None

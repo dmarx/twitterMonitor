@@ -1,8 +1,11 @@
-import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 import os
 here = os.path.dirname(__file__)
 
-config = ConfigParser.ConfigParser()
+config = ConfigParser()
 config.read(os.path.join(here, 'connection.cfg'))
 fpath = os.path.join(here,config.get('terms','location'))
 

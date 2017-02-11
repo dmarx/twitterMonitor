@@ -22,15 +22,21 @@ import datetime as dt
 import numpy as np
 #from scraper import MyStreamer
 import sqlite3
-import ConfigParser
-from urlparse import urlparse
+try: 
+    from Configparser import ConfigParser
+except:
+    from configparser import ConfigParser
+try:
+    from urlparse import urlparse
+except:
+    from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from load_terms import load_terms
 import os
 here = os.path.dirname(__file__)
 
-config = ConfigParser.ConfigParser()
+config = ConfigParser()
 config.read(os.path.join(here, 'connection.cfg'))
 DB_NAME = os.path.join(here, config.get('database','name'))
 

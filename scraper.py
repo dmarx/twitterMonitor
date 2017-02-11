@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 from connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
 from twython import TwythonStreamer
 from requests.exceptions import ChunkedEncodingError
@@ -25,9 +25,9 @@ class MyStreamer(TwythonStreamer):
     def on_error(self, status_code, data):
         if not hasattr(self, 'backoff'):
             self.backoff = 1
-        print "[ON ERROR]", status_code
+        print("[ON ERROR]", status_code)
         if status_code == 420:
-            print "Sleeping", self.backoff
+            print("Sleeping", self.backoff)
             time.sleep(self.backoff)
             self.backoff *= 2 # Exponential backoff
             if self.backoff > 15*60: # Don't sleep longer than 15 minutes
@@ -49,17 +49,17 @@ if __name__ == "__main__":
             stream.statuses.filter(track=terms)
             #stream.statuses.filter(track=['hillary', 'trump', 'election'])
             backoff = .1
-        except ChunkedEncodingError, e:
+        except ChunkedEncodingError as e:
             exception_catcher[e] +=1
-            print "[SCRAPER ERROR]", e, exception_catcher[e]
-        except OperationalError, e:
-            print "[DB ERROR]", e, exception_catcher[e]
-            print "Sleeping", backoff
+            print("[SCRAPER ERROR]", e, exception_catcher[e])
+        except OperationalError as e:
+            print("[DB ERROR]", e, exception_catcher[e])
+            print("Sleeping", backoff)
             time.sleep(backoff)
             backoff*=1.5
-        except Exception, e:        
+        except Exception as e:        
             exception_catcher[e] +=1
-            print "[SCRAPER ERROR]", e, exception_catcher[e]
+            print("[SCRAPER ERROR]", e, exception_catcher[e])
             db.conn.close()
             raise e
         

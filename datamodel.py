@@ -1,17 +1,24 @@
+from __future__ import print_function
 import sqlite3
 from load_terms import load_terms
-import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 import time
 from datetime import datetime
 from contextlib import closing
 import numpy as np
 from kde import exp_decay
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except:
+    from urllib.parse import urlparse
 import string
 import os
 here = os.path.dirname(__file__)
 
-config = ConfigParser.ConfigParser()
+config = ConfigParser()
 config.read(os.path.join(here, 'connection.cfg'))
 DB_NAME = os.path.join(here, config.get('database','name'))
 
@@ -61,8 +68,8 @@ class DbApi(object):
                 self.persist_entities(c, data, vals, 'urls')
                 self.persist_entities(c, data, vals, 'media')
                 self.persist_terms(c, vals)
-            except sqlite3.IntegrityError, e:
-                print e
+            except sqlite3.IntegrityError as e:
+                print(e)
                 self.conn.rollback()
                 return
             
@@ -115,7 +122,8 @@ class DbApi(object):
         """
         
         tweet_id = vals['tweet_id']
-        if data['entities'].has_key(kind):
+        #if data['entities'].has_key(kind):
+        if kind in data['entities']:
             for url1 in data['entities'][kind]:
                 #print "url1", url1
                 url = url1['expanded_url']
@@ -123,7 +131,7 @@ class DbApi(object):
                     continue
                 if urlparse(url).netloc.lower() == 'twitter.com':
                     url = url.lower() # standardize twitter urls.
-                print (str(datetime.now()) + " [URL] " + url.encode('utf-8'))
+                #print (str(datetime.now()) + " [URL] " + url.encode('utf-8')) ###### put FUNCTIONING logging call here.
                 #try:
                 #    print "url", url
                 #except UnicodeEncodeError:
