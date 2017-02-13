@@ -5,6 +5,7 @@ try:
 except:
     from urllib.parse import urlparse
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from collections import Counter
 import networkx as nx
 from sklearn.metrics.pairwise import pairwise_kernels
@@ -30,10 +31,10 @@ class CorpusSummarizer(object):
             self.article_bows[id] = self.get_bow(id)
         #term_doc_matrix = DictVectorizer(self.article_bows.values())
         dv = DictVectorizer()
-        term_doc_matrix = dv.fit_transform(self.article_bows.values())
-        print("TERM DOC MATRIX")
-        print(term_doc_matrix.shape)
-        clusters = self.cluster_documents(term_doc_matrix)
+        tdm = dv.fit_transform(self.article_bows.values())
+        tfidf = TfidfTransformer() # Should probably train transformer on a baseline news corpus
+        tdm_tfidf = tfidf.fit_transform(tdm)
+        clusters = self.cluster_documents(tdm_tfidf)
         # To do:
         #   1. Identify document with highest score in each cluster
         #   2. Get that documents summary, use as summary for the cluster
