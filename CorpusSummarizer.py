@@ -28,7 +28,9 @@ class CorpusSummarizer(object):
     def go(self):
         self.get_top_articles()
         for id in self.top_article_ids:
-            self.article_bows[id] = self.get_bow(id)
+            bow = self.get_bow(id)
+            if len(bow) > 1:
+                self.article_bows[id] =  bow
         #term_doc_matrix = DictVectorizer(self.article_bows.values())
         dv = DictVectorizer()
         tdm = dv.fit_transform(self.article_bows.values())
@@ -111,7 +113,8 @@ class CorpusSummarizer(object):
         
     def cluster_documents(self, term_doc_matrix, metric='cosine'):
         dx = pairwise_kernels(term_doc_matrix, metric=metric)
-        dx[dx<=self.score_threshold] = 0 
+        dx[dx<self.score_threshold] = 0 
+        dx[dx>self.score_threshold] = 1 # not really necessary, but why not.
         g = nx.from_numpy_matrix(dx)
         return [c for c in nx.connected_components(g) if len(c)>1]
         
@@ -123,6 +126,30 @@ if __name__ == "__main__":
     
     # building up CorpusSummarizer.go() piecewise
     cs.get_top_articles()
+    corpus = []
     for id in cs.top_article_ids:
-        print(id)
-        cs.article_bows[id] = cs.get_bow(id)
+        bow = cs.get_bow(id)
+        if len(bow) > 1:
+            corpus.append(id)
+            cs.article_bows[id] = bow
+            
+    dv = DictVectorizer()
+    tdm = dv.fit_transform(cs.article_bows.values())
+    tfidf = TfidfTransformer() # Should probably train transformer on a baseline news corpus
+    tdm_tfidf = tfidf.fit_transform(tdm)
+    clusters = cs.cluster_documents(tdm_tfidf)        
+    #cluster_doc_ids = [corpus[ix] for c in clusters for ix in c]
+    clusters_doc_ids = []
+    for c in clusters:
+        cluster_doc_ids = [corpus[ix] for ix in c]
+        clusters_doc_ids.append(cluster_doc_ids)
+    
+    # replace ids with article titles for debugging
+    cluster_doc_titles = []
+    for cluster in clusters_doc_ids:
+        cluster_titles = []
+        print(cluster)
+        for id in cluster:
+            title = db.conn.execute("select title from entities where id = ?",[id]).fetchone()
+            cluster_titles.append(title)
+        cluster_doc_titles.append(cluster_titles)
