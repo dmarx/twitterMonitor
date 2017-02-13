@@ -31,3 +31,11 @@ CREATE TABLE tweet_terms
      term     TEXT,
      FOREIGN KEY(tweet_id)  REFERENCES tweet(id)
     );
+    
+CREATE TABLE entity_bow
+    (id        INTEGER PRIMARY KEY AUTOINCREMENT,
+     entity_id INTEGER,
+     token     TEXT,
+     cnt       INTEGER,
+     FOREIGN KEY(entity_id) REFERENCES entities(id)
+    );

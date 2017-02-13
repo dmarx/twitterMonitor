@@ -10,7 +10,7 @@ import networkx as nx
 from sklearn.metrics.pairwise import pairwise_kernels
 
 class CorpusSummarizer(object):
-    def __init__(self, db, score_threshold = 2, similarity_threshold = .2, n=20):
+    def __init__(self, db, score_threshold = .2, similarity_threshold = .2, n=20):
         self.db = db
         self.score_threshold = score_threshold
         self.similarity_threshold = similarity_threshold
@@ -30,7 +30,7 @@ class CorpusSummarizer(object):
             self.article_bows[id] = self.get_bow(id)
         #term_doc_matrix = DictVectorizer(self.article_bows.values())
         dv = DictVectorizer()
-        term_doc_matrix = dv.fit_transform(self.article_bows)
+        term_doc_matrix = dv.fit_transform(self.article_bows.values())
         print("TERM DOC MATRIX")
         print(term_doc_matrix.shape)
         clusters = self.cluster_documents(term_doc_matrix)
@@ -62,12 +62,12 @@ class CorpusSummarizer(object):
         are persisted to DB, and BOW is returned.
         """
         bow = self.bow_from_db(id)
-        if bow is None:
+        if bow is None or bow == {}:
             #url  = self.db.conn.execute("SELECT url FROM entities WHERE id = ?", [id]).fetchone()[0]
             url = self.top_article_urls[id]
             text = self.get_article_text(url)
             bow  = self.text_to_bow_dict(text)
-            summary = summarize(text)
+            #summary = summarize(text) ################# get back to this
             ##### need to add to datamodel #####
             #self.db.persist_bow(id, bow) 
             #self.db.persist_summary(id, summary)
@@ -82,14 +82,21 @@ class CorpusSummarizer(object):
         return text
 
     def get_twitter_text(self, url):
+        return ''
         pass
         # Get article text via twython
         
     def get_nontwitter_article_text(self, url):
-        article = newspaper.Article(url, language='en')
-        article.download()
-        article.parse()
-        return article.text()
+        try:
+            article = newspaper.Article(url, language='en')
+            article.download()
+            article.parse()
+            text = article.text
+        except Exception as e:
+            print("A problem was encountered getting article text")
+            print(e)
+            text = ''
+        return text
         
     def text_to_bow_dict(self, text):
         tokens = normalize_and_tokenize(text)
@@ -98,7 +105,7 @@ class CorpusSummarizer(object):
     def bow_from_db(self, id):
         pass
         # Need to add to db
-        records = self.db.conn.execute("SELECT token, count FROM entity_bow WHERE entity_id = ?", [id]).fetchall()
+        records = self.db.conn.execute("SELECT token, cnt FROM entity_bow WHERE entity_id = ?", [id]).fetchall()
         return {token:count for token, count in records}
         
     def cluster_documents(self, term_doc_matrix, metric='cosine'):
@@ -110,4 +117,11 @@ class CorpusSummarizer(object):
 
 if __name__ == "__main__":
     from datamodel import DbApi
-        
+    db = DbApi()
+    cs = CorpusSummarizer(db)
+    
+    # building up CorpusSummarizer.go() piecewise
+    cs.get_top_articles()
+    for id in cs.top_article_ids:
+        print(id)
+        cs.article_bows[id] = cs.get_bow(id)

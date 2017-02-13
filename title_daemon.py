@@ -1,16 +1,18 @@
-import ConfigParser
 import requests
 from requests.exceptions import ChunkedEncodingError, SSLError
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
 import sqlite3
-import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 import os
 from sqlite3 import OperationalError
 
 here = os.path.dirname(__file__)
-config = ConfigParser.ConfigParser()
+config = ConfigParser()
 config.read(os.path.join(here, 'connection.cfg'))
 
 def post_process_url(url):
@@ -24,7 +26,7 @@ def post_process_url(url):
         title = soup.title.text.strip()
     except:
         title = url
-    print (str(datetime.now()) + " [TITLE] " + title.encode('utf-8'))
+    #print (str(datetime.now()) + " [TITLE] " + title.encode('utf-8')) ####### crushing "str not bytes" error
     return orig_url, title   
     
 def get_titles(conn, 
@@ -36,9 +38,9 @@ def get_titles(conn,
         try:
             top = conn.execute('select id, url, orig_url, title, current_score from entities where type=? and current_score > ? order by current_score desc limit ?', [kind, min_score, n]).fetchall()
             break
-        except OperationalError, e:
-            print "[DB ERROR]", e
-            print "Sleeping", backoff
+        except OperationalError as e:
+            print("[DB ERROR]", e)
+            print("Sleeping", backoff)
             time.sleep(backoff)
             backoff*=1.5
     records = []
@@ -48,8 +50,8 @@ def get_titles(conn,
         if not rec[ix['orig_url']]:
             try:
                 orig_url, title = post_process_url(rec[ix['url']])
-            except Exception, e:
-                print '[TITLE DAEMON ERROR]', e
+            except Exception as e:
+                print('[TITLE DAEMON ERROR]', e)
                 continue
             #except SSLError:
             #    orig_url, title = rec[ix['url']], rec[ix['url']]
@@ -63,9 +65,9 @@ def get_titles(conn,
                     conn.execute('UPDATE entities SET orig_url=?, title=? WHERE id = ?', par)
                     conn.commit()
                     break
-                except OperationalError, e:
-                    print "[DB ERROR]", e, exception_catcher[e]
-                    print "Sleeping", backoff
+                except OperationalError as e:
+                    print("[DB ERROR]", e)
+                    print("Sleeping", backoff)
                     time.sleep(backoff)
                     backoff*=1.5
 
