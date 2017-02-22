@@ -23,7 +23,7 @@ import numpy as np
 #from scraper import MyStreamer
 import sqlite3
 try: 
-    from Configparser import ConfigParser
+    from ConfigParser import ConfigParser
 except:
     from configparser import ConfigParser
 try:

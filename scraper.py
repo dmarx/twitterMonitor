@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 from connect import twitter, tweets, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
 from twython import TwythonStreamer
-from requests.exceptions import ChunkedEncodingError
+from requests.exceptions import ChunkedEncodingError, ConnectionError
 import time
 from sqlite3 import OperationalError
 from datamodel import DbApi
@@ -54,6 +54,11 @@ if __name__ == "__main__":
             print("[SCRAPER ERROR]", e, exception_catcher[e])
         except OperationalError as e:
             print("[DB ERROR]", e, exception_catcher[e])
+            print("Sleeping", backoff)
+            time.sleep(backoff)
+            backoff*=1.5
+        except ConnectionError as e:
+            print("[CONNECTION (twython) ERROR]", e, exception_catcher[e])
             print("Sleeping", backoff)
             time.sleep(backoff)
             backoff*=1.5
